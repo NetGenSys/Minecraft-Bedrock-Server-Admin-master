@@ -162,7 +162,7 @@ namespace MinecraftBedrockServerAdmin
                 {
                     this.txtOutput.AppendText(strText);
                     txtOutput.ScrollToCaret();
-                    File.AppendAllText(@"ServerLog.csv", strText + " ::: Line : 167");
+                    File.AppendAllText(@"ServerLog.csv", strText + " ::: Line : 165\r\n");
                     return;
                 }
                 if (blah.Contains("commandblock") && blah.Contains("="))
@@ -179,28 +179,28 @@ namespace MinecraftBedrockServerAdmin
                 {
                     this.txtOutput.AppendText(strText);
                     txtOutput.ScrollToCaret();
-                    File.AppendAllText(@"ServerLog.csv", strText + " ::: Line : 184");
+                    File.AppendAllText(@"ServerLog.csv", strText + " ::: Line : 182\r\n");
                 }
                 else if (strText.Contains("players online"))
                 {
                     players = players + strText + "\r\n";
                 }
-                else if (!strText.Contains("players") && blah.Length > 35 || strText.Contains("Quit") || strText.Contains("Set") || strText.Contains("Changing"))
+                else if (!strText.Contains("players") && blah.Length > 10 || strText.Contains("Quit") || strText.Contains("Set") || strText.Contains("Changing"))
                 {
                     this.txtOutput.AppendText(strText);
                     txtOutput.ScrollToCaret(); 
-                    File.AppendAllText(@"ServerLog.csv", strText + " ::: Line : 194");
+                    File.AppendAllText(@"ServerLog.csv", strText + " ::: Line : 192\r\n");
                 }
                 else
                 {
-                    if (strText.Contains(", ") || strText.Contains("players online") || blah.Length < 35)
+                    if (strText.Contains(", ") || strText.Contains("players online"))
                     {
                         string removeCR = strText.Replace("\r\n", "");
                         string[] names = removeCR.Split(',');
                         Array.Sort(names);
                         string result = string.Join("\r\n", names);
                         players += result;
-                        File.AppendAllText(@"ServerLog.csv", result + " ::: Line : 204");
+                        File.AppendAllText(@"ServerLog.csv", result + " ::: Line : 203\r\n");
                     }
                 }
             }
