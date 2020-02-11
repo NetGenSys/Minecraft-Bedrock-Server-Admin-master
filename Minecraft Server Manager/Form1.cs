@@ -7,6 +7,8 @@ using System.IO;
 using System.Management;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -19,8 +21,7 @@ namespace MinecraftBedrockServerAdmin
         private StreamWriter mcInputStream;
 
         private string players = "Loading Player List.....";
-        private string players2 = "";
-
+        private readonly string players2 = "";
         private System.Threading.Timer timer;
 
         public delegate void fpTextBoxCallback_t(string strText);
@@ -90,6 +91,13 @@ namespace MinecraftBedrockServerAdmin
             gameRuleList.Add("showdeathmessages");
             gameRuleList.Add("tntexplodes");
 
+            List<string> ServerCommandList = new List<string>();
+            ServerCommandList.Add("ban");
+            ServerCommandList.Add("kick");
+            ServerCommandList.Add("give");
+            ServerCommandList.Add("tp");
+
+
             if (startServer == "true")
             {
                 startServerCheckbox.Checked = true;
@@ -124,14 +132,15 @@ namespace MinecraftBedrockServerAdmin
             {
                 return; //time already passed
             }
-            this.timer = new System.Threading.Timer(x => {
+            this.timer = new System.Threading.Timer(x =>
+            {
                 backgroundWorker1.RunWorkerAsync();
             }, null, timeToGo, Timeout.InfiniteTimeSpan);
         }
 
         public void AddTextToOutputTextBox(string strText)
         {
-            string blah = strText.Replace("\r\n", "");
+            string blah = strText.Replace("\r", "");
             try
             {
                 if (blah.Contains("CrashReporter") && restartTryLimit < 3)
@@ -144,12 +153,16 @@ namespace MinecraftBedrockServerAdmin
                 if (blah.Contains("Server Started."))
                 {
                     restartTryLimit = 0;
+                }                
+                if (blah.Contains("Unknown command:"))
+                {
+                    return;
                 }
                 if (blah.Contains("Network port occupied, can't start server."))
                 {
                     this.txtOutput.AppendText(strText);
                     txtOutput.ScrollToCaret();
-                    File.AppendAllText(@"ServerLog.csv", strText);
+                    File.AppendAllText(@"ServerLog.csv", strText + " ::: Line : 167");
                     return;
                 }
                 if (blah.Contains("commandblock") && blah.Contains("="))
@@ -166,26 +179,29 @@ namespace MinecraftBedrockServerAdmin
                 {
                     this.txtOutput.AppendText(strText);
                     txtOutput.ScrollToCaret();
-                    File.AppendAllText(@"ServerLog.csv", strText);
+                    File.AppendAllText(@"ServerLog.csv", strText + " ::: Line : 184");
                 }
                 else if (strText.Contains("players online"))
                 {
                     players = players + strText + "\r\n";
                 }
-                else if (strText.Contains("players online") || (!blah.Contains(" ") && strText.Length > 0) || blah.Contains(", "))
+                else if (!strText.Contains("players") && blah.Length > 35 || strText.Contains("Quit") || strText.Contains("Set") || strText.Contains("Changing"))
                 {
-                    string removeCR = strText.Replace("\r\n", "");
-                    removeCR = removeCR.Replace(" ", "");
-                    string[] names = removeCR.Split(',');
-                    Array.Sort(names);
-                    string result = string.Join("\r\n", names);
-                    players = players + result;
+                    this.txtOutput.AppendText(strText);
+                    txtOutput.ScrollToCaret(); 
+                    File.AppendAllText(@"ServerLog.csv", strText + " ::: Line : 194");
                 }
                 else
                 {
-                    this.txtOutput.AppendText(strText);
-                    txtOutput.ScrollToCaret();
-                    File.AppendAllText(@"ServerLog.csv", strText);
+                    if (strText.Contains(", ") || strText.Contains("players online") || blah.Length < 35)
+                    {
+                        string removeCR = strText.Replace("\r\n", "");
+                        string[] names = removeCR.Split(',');
+                        Array.Sort(names);
+                        string result = string.Join("\r\n", names);
+                        players += result;
+                        File.AppendAllText(@"ServerLog.csv", result + " ::: Line : 204");
+                    }
                 }
             }
             catch (Exception) { }
@@ -230,13 +246,23 @@ namespace MinecraftBedrockServerAdmin
 
         private void startServerButton_Click(object sender, EventArgs e)
         {
-            string processFileName = "";
-            //extractResource("bedrock_server.exe", System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
-            processFileName = @"bedrock_server.exe";
+
+            string Serverpath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "bedrock_server.exe");
+            File.WriteAllBytes(Serverpath, MinecraftBedrockServerAdmin.Properties.Resources.bedrock_server);
+
+            string Propertiespath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "server.properties");
+            File.WriteAllBytes(Propertiespath, MinecraftBedrockServerAdmin.Properties.Resources.server);
+
+            string Permissionspath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "permissions.json");
+            File.WriteAllBytes(Permissionspath, MinecraftBedrockServerAdmin.Properties.Resources.permissions);
+
+            string Whitelistpath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "whitelist.json");
+            File.WriteAllBytes(Whitelistpath, MinecraftBedrockServerAdmin.Properties.Resources.whitelist);
+
 
             minecraftProcess = new System.Diagnostics.Process();
 
-            minecraftProcess.StartInfo.FileName = processFileName;
+            minecraftProcess.StartInfo.FileName = Serverpath;
 
             AddTextToOutputTextBox("Using this terminal: " + minecraftProcess.StartInfo.FileName);
 
@@ -265,6 +291,11 @@ namespace MinecraftBedrockServerAdmin
             try
             {
                 mcInputStream.WriteLine("stop");
+                Thread.Sleep(500);
+                File.Delete(System.IO.Directory.GetCurrentDirectory() + "/bedrock_server.exe");
+                File.Delete(System.IO.Directory.GetCurrentDirectory() + "/server.properties");
+                File.Delete(System.IO.Directory.GetCurrentDirectory() + "/permissions.json");
+                File.Delete(System.IO.Directory.GetCurrentDirectory() + "/whitelist.json");
                 playerTxtOutput.Clear();
                 gameRulesTxt.Clear();
             }
@@ -385,6 +416,7 @@ namespace MinecraftBedrockServerAdmin
                 //playerTxtOutput.Clear();
                 mcInputStream.WriteLine("list");
                 players = players2;
+
             }
             catch
             {
@@ -506,40 +538,37 @@ namespace MinecraftBedrockServerAdmin
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            mcInputStream.WriteLine("say THE SERVER IS GOING DOWN FOR A BACKUP IN 10 SECONDS");
-            txtOutput.AppendText("\r\n\r\nTelling players the server is going down in 10 seconds\r\n");
-            File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "Telling players the server is going down in 10 seconds\r\n");
-
+            mcInputStream.WriteLine("say THE SERVER WILL BE PAUSING FOR A BACKUP IN 5 MINUTES");
+            txtOutput.AppendText("\r\n\r\nTelling players the server is pausing in 5 minutes\r\n");
+            File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "Telling players the server is going down in 5 minutes\r\n");
+            txtOutput.ScrollToCaret();
+            Thread.Sleep(240000);
+            mcInputStream.WriteLine("say THE SERVER WILL BE PAUSING FOR A BACKUP IN 1 MINUTE");
+            txtOutput.AppendText("\r\n\r\nTelling players the server is pausing in 1 minute\r\n");
+            txtOutput.ScrollToCaret();
+            Thread.Sleep(60000);
+            mcInputStream.WriteLine("say THE SERVER WILL BE PAUSING FOR A BACKUP IN 30 SECONDS");
+            txtOutput.AppendText("\r\n\r\nTelling players the server is pausing in 30 seconds\r\n");
+            txtOutput.ScrollToCaret();
+            Thread.Sleep(30000);
+            mcInputStream.WriteLine("say THE SERVER WILL BE PAUSING FOR A BACKUP IN 10 seconds");
+            txtOutput.AppendText("\r\n\r\nTelling players the server is pausing in 10 seconds\r\n");
+            txtOutput.ScrollToCaret();
             Thread.Sleep(10000);
-            txtOutput.AppendText("\r\nStopping Server\r\n");
-            File.AppendAllText(@"ServerLog.csv", DateTime.Now.ToString() + " " + "Stopping Server\r\n");
-            mcInputStream.WriteLine("stop");
-            Thread.Sleep(5000);
-            string source_dir = "";
-            string destination_dir = "";
+            mcInputStream.WriteLine("say SERVER IS PAUSED, PLEASE WAIT ROUGHLY 12 SECONDS TO SAVE.");
+            txtOutput.AppendText("\r\nPausing Server for world backup\r\n");
+            File.AppendAllText(@"ServerLog.csv", DateTime.Now.ToString() + " " + "Pausing Server for world backup\r\n");
+            mcInputStream.WriteLine("save hold");
+            txtOutput.ScrollToCaret();
+            Thread.Sleep(9000);
+            mcInputStream.WriteLine("save query");
+            txtOutput.ScrollToCaret();
+            Thread.Sleep(1000);
+            mcInputStream.WriteLine("save resume");
+            mcInputStream.WriteLine("say THE SERVER HAS COMPLETED THE BACKUP");
+            txtOutput.AppendText("\r\n\r\nTelling players the server has completed being backed up\r\n");
+            txtOutput.ScrollToCaret();
 
-            source_dir = @"worlds";
-            destination_dir = @"backups\worlds" + DateTime.Now.ToString("hhmmttMMddyyyy");
-
-            txtOutput.AppendText("\r\nStarting Backup\r\n\r\n");
-            File.AppendAllText(@"ServerLog.csv", DateTime.Now.ToString() + " " + "Starting Backup\r\n");
-            foreach (string dir in System.IO.Directory.GetDirectories(source_dir, "*", System.IO.SearchOption.AllDirectories))
-            {
-                System.IO.Directory.CreateDirectory(System.IO.Path.Combine(destination_dir, dir.Substring(source_dir.Length + 1)));
-            }
-
-            foreach (string file_name in System.IO.Directory.GetFiles(source_dir, "*", System.IO.SearchOption.AllDirectories))
-            {
-                System.IO.File.Copy(file_name, System.IO.Path.Combine(destination_dir, file_name.Substring(source_dir.Length + 1)));
-                txtOutput.AppendText("Backing up: " + file_name + "    TO:    " + destination_dir + file_name + "\r\n\r\n");
-                File.AppendAllText(@"ServerLog.csv", DateTime.Now.ToString() + " " + "Backing up: " + file_name + "    TO:    " + destination_dir + file_name + "\r\n");
-                txtOutput.ScrollToCaret();
-            }
-            Thread.Sleep(5000);
-            txtOutput.AppendText("\r\nBackup Complete. Starting server\r\n\r\n");
-            File.AppendAllText(@"ServerLog.csv", DateTime.Now.ToString() + " " + "Backup Complete. Starting server\r\n");
-
-            startServerButton_Click(sender, e);
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -582,23 +611,35 @@ namespace MinecraftBedrockServerAdmin
                 configuration.Save(ConfigurationSaveMode.Modified);
             }
         }
-        private string IPInfo()
+        public static string GetLocalIPAddress()
         {
-            try
+            if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() == true)
             {
                 const string Address = "http://icanhazip.com";
-                string externalip = new WebClient().DownloadString(Address);
-                IPBox1.AppendText(externalip);
-            }
-            catch
-            {
+                string ip = new WebClient().DownloadString(Address);
 
+                if (ip != null && ip != "")
+                {
+                    return ip;
+                }
+            }
+            else
+            {
+                var host = Dns.GetHostEntry(Dns.GetHostName());
+                foreach (var ip in host.AddressList)
+                {
+                    if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        return ip.ToString();
+                    }
+                }
+                throw new Exception("No network adapters with an IPv4 address in the system!");
             }
             return "";
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            AddTextToOutputTextBox(IPInfo().ToString());
+            IPBox1.AppendText(GetLocalIPAddress());
 
         }
 
@@ -675,6 +716,41 @@ namespace MinecraftBedrockServerAdmin
         private void label10_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void Button4_Click(object sender, EventArgs e)
+        {
+            string browser = string.Empty;
+            RegistryKey key = null;
+            try
+            {
+                key = Registry.ClassesRoot.OpenSubKey(@"HTTP\shell\open\command");
+                if (key != null)
+                {
+                    // Get default Browser
+                    browser = key.GetValue(null).ToString().ToLower().Trim(new[] { '"' });
+                }
+                if (!browser.EndsWith("exe"))
+                {
+                    //Remove all after the ".exe"
+                    browser = browser.Substring(0, browser.LastIndexOf(".exe", StringComparison.InvariantCultureIgnoreCase) + 4);
+                }
+            }
+            finally
+            {
+                if (key != null)
+                {
+                    key.Close();
+                }
+            }
+            // Open the browser.
+            Process proc = Process.Start(browser, "https://discord.gg/UksvsU");
+            if (proc != null)
+            {
+                Thread.Sleep(5000);
+                // Close the browser.
+                //proc.Kill();
+            }
         }
     }
 }

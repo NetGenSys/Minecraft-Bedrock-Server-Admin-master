@@ -118,4 +118,19 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="af1a442f9a25a27837f17805b1c0cfa4d1725f90_1__tyz_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\af1a442f9a25a27837f17805b1c0cfa4d1725f90_1__tyz_icon.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="bedrock_server" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\bedrock_server.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="permissions" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\permissions.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="server" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\server.properties;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="whitelist" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\whitelist.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

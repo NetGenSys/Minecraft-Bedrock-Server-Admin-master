@@ -39,7 +39,7 @@ namespace MinecraftBedrockServerAdmin.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Minecraft_Server_Manager.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MinecraftBedrockServerAdmin.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,6 +57,56 @@ namespace MinecraftBedrockServerAdmin.Properties {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap af1a442f9a25a27837f17805b1c0cfa4d1725f90_1__tyz_icon {
+            get {
+                object obj = ResourceManager.GetObject("af1a442f9a25a27837f17805b1c0cfa4d1725f90_1__tyz_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] bedrock_server {
+            get {
+                object obj = ResourceManager.GetObject("bedrock_server", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] permissions {
+            get {
+                object obj = ResourceManager.GetObject("permissions", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] server {
+            get {
+                object obj = ResourceManager.GetObject("server", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] whitelist {
+            get {
+                object obj = ResourceManager.GetObject("whitelist", resourceCulture);
+                return ((byte[])(obj));
             }
         }
     }

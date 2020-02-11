@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Resources;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
@@ -7,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Minecraft Bedrock Server Admin")]
 [assembly: AssemblyDescription("A Minecraft Bedrock Server GUI")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("NetGen Systems")]
 [assembly: AssemblyProduct("Minecraft Bedrock Server Admin")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
@@ -15,7 +16,7 @@ using System.Runtime.InteropServices;
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from
 // COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
+[assembly: ComVisible(true)]
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("5a1ced74-afe7-4d52-8fd9-487dcdc15669")]
 // Version information for an assembly consists of the following four values:
@@ -30,3 +31,4 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("2.1.420.5")]
 [assembly: AssemblyFileVersion("2.1.420.5")]
+[assembly: NeutralResourcesLanguage("en-US")]
