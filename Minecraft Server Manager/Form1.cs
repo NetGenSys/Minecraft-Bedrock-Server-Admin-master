@@ -140,9 +140,23 @@ namespace MinecraftBedrockServerAdmin
                 }                
                 if (blah.Contains("Unknown command:"))
                 {
-                    this.txtOutput.AppendText(blah);
-                    txtOutput.ScrollToCaret();
+                    if (strText.Contains("aboutme"))
+                    {
+                        var aboutme = "               Created by Andrew G.\r\n " +
+                                      "Location: RA 0h 42m 44s | Dec +41° 16′ 9″\r\n " +
+                                      "Written in: C#\r\n" +
+                                      "Thank you for using my software :)";
+                        txtOutput.Clear();
+                        this.txtOutput.AppendText(aboutme);
+                        txtOutput.ScrollToCaret();
+                        return;
+                    }
+                    else
+                    {
+                        this.txtOutput.AppendText(blah);
+                        txtOutput.ScrollToCaret();
                         MessageBox.Show(blah, "Unknown Command", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
                 if (blah.Contains("Network port occupied, can't start server."))
                 {
@@ -172,7 +186,7 @@ namespace MinecraftBedrockServerAdmin
                     players = players + strText + "\r\n";
                 }
                 else if (!blah.Contains("Unknown command:") && !strText.Contains("players online") && blah.Length > 35 || strText.Contains("Quit") 
-                            || strText.Contains("Set") || strText.Contains("Changing"))
+                            || strText.Contains("Set") || strText.Contains("Changing") || strText.Contains("Saving"))
                 {
                     this.txtOutput.AppendText(strText);
                     txtOutput.ScrollToCaret(); 
@@ -262,17 +276,19 @@ namespace MinecraftBedrockServerAdmin
         }
         private void StartServerFunction(EventArgs e)
         {
-
-            string Serverpath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "bedrock_server.exe");
-            File.WriteAllBytes(Serverpath, MinecraftBedrockServerAdmin.Properties.Resources.bedrock_server);
-            string Propertiespath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "server.properties");
-            File.WriteAllBytes(Propertiespath, MinecraftBedrockServerAdmin.Properties.Resources.server);
-            string Permissionspath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "permissions.json");
-            File.WriteAllBytes(Permissionspath, MinecraftBedrockServerAdmin.Properties.Resources.permissions);
-            string Whitelistpath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "whitelist.json");
-            File.WriteAllBytes(Whitelistpath, MinecraftBedrockServerAdmin.Properties.Resources.whitelist);
+            if (!File.Exists(System.IO.Directory.GetCurrentDirectory() + "/bedrock_server.exe"))
+            {
+                string Serverpath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "bedrock_server.exe");
+                File.WriteAllBytes(Serverpath, MinecraftBedrockServerAdmin.Properties.Resources.bedrock_server);
+                string Propertiespath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "server.properties");
+                File.WriteAllBytes(Propertiespath, MinecraftBedrockServerAdmin.Properties.Resources.server);
+                string Permissionspath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "permissions.json");
+                File.WriteAllBytes(Permissionspath, MinecraftBedrockServerAdmin.Properties.Resources.permissions);
+                string Whitelistpath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "whitelist.json");
+                File.WriteAllBytes(Whitelistpath, MinecraftBedrockServerAdmin.Properties.Resources.whitelist);
+            }
             minecraftProcess = new System.Diagnostics.Process();
-            minecraftProcess.StartInfo.FileName = Serverpath;
+            minecraftProcess.StartInfo.FileName = "bedrock_server.exe";
             AddTextToOutputTextBox("Using this terminal: " + minecraftProcess.StartInfo.FileName);
             minecraftProcess.StartInfo.UseShellExecute = false;
             minecraftProcess.StartInfo.CreateNoWindow = true;
@@ -288,6 +304,7 @@ namespace MinecraftBedrockServerAdmin
             minecraftProcess.BeginOutputReadLine();
             minecraftProcess.BeginErrorReadLine();
             mcInputStream.WriteLine("gamerule");
+
         }
         private void stopServerFunction(EventArgs e)
         {
@@ -296,7 +313,7 @@ namespace MinecraftBedrockServerAdmin
             {
                 if (stopServer)
                 {
-                    mcInputStream.WriteLine("stop");
+                    
                     Thread.Sleep(500);
                     //File.Delete(System.IO.Directory.GetCurrentDirectory() + "/bedrock_server.exe");
                     //File.Delete(System.IO.Directory.GetCurrentDirectory() + "/server.properties");
@@ -304,7 +321,8 @@ namespace MinecraftBedrockServerAdmin
                     //File.Delete(System.IO.Directory.GetCurrentDirectory() + "/whitelist.json");
                     //playerTxtOutput.Clear();
                     gameRulesTxt.Clear();
-                    stopServer = false;
+                    btnExecute_Click("server",e);
+                   stopServer = false;
                 }
                 else
                 {
@@ -322,8 +340,11 @@ namespace MinecraftBedrockServerAdmin
         }
         private void stopServerButton_Click(object sender, EventArgs e)
         {
+               
             stopServer = true;
+            mcInputStream.WriteLine("stop");
             stopServerFunction(e);
+            
         }
 
         private void OnProcessExit(object sender, EventArgs e)
@@ -561,10 +582,14 @@ namespace MinecraftBedrockServerAdmin
             {
                 foreach (int sleeptime in sleepytimes)
                 {
-                    var Minutes = sleeptime / 60 / 1000;
-                    mcInputStream.WriteLine("say THE SERVER WILL BE PAUSING FOR A BACKUP IN " + Minutes + " MINUTES");
-                    txtOutput.AppendText("\r\n\r\nTelling players the server is pausing in " + Minutes + " minutes\r\n");
-                    File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "Telling players the server is going down in " + Minutes + " minutes\r\n");
+                    int Minutes = sleeptime / 60 / 1000;
+                    int seconds = sleeptime / 1000;
+                    var time = "";
+                    if(Minutes > 0) { time = Minutes.ToString() + " minutes"; }
+                    else if(Minutes <= 0) { time = seconds.ToString() + " seconds"; }
+                    mcInputStream.WriteLine("say THE SERVER WILL BE PAUSING FOR A BACKUP IN " + time);
+                    txtOutput.AppendText("\r\n\r\nTelling players the server is pausing in " + time + "\r\n");
+                    File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "Telling players the server is going down in " + time + "\r\n");
                     txtOutput.ScrollToCaret();
                     Thread.Sleep(sleeptime);
                 }
