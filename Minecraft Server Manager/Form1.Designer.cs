@@ -642,6 +642,8 @@ namespace MinecraftBedrockServerAdmin {
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1391, 737);
             this.ControlBox = false;
+            this.Controls.Add(this.startServerButton);
+            this.Controls.Add(this.stopServerButton);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.button3);
@@ -676,8 +678,6 @@ namespace MinecraftBedrockServerAdmin {
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.stopServerButton);
-            this.Controls.Add(this.startServerButton);
             this.Controls.Add(this.backupButton);
             this.Controls.Add(this.btnExecute);
             this.Controls.Add(this.txtOutput);
