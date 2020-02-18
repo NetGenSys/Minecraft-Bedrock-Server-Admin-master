@@ -6,9 +6,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Management;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -25,6 +24,8 @@ namespace MinecraftBedrockServerAdmin
         private System.Threading.Timer timer;
         public delegate void fpTextBoxCallback_t(string strText);
         public fpTextBoxCallback_t fpTextBoxCallback;
+        public string output;
+        readonly string[] ports = File.ReadAllLines(Directory.GetCurrentDirectory() + "\\server.properties", Encoding.UTF8);
 
         public Form1()
         {
@@ -107,6 +108,9 @@ namespace MinecraftBedrockServerAdmin
             }
         } 
         private int restartTryLimit = 0;
+        public string FileName = "C:\\Windows\\System32\\NETSTAT.EXE";
+        public string netstatargs = " -n";                
+
         private void SetUpTimer()
         {
             TimeSpan alertTime = dateTimePicker1.Value.TimeOfDay;
@@ -469,16 +473,39 @@ namespace MinecraftBedrockServerAdmin
 
         private string ShowActiveTcpConnections()
         {
-            ServerInfoOutput.AppendText("Active TCP Connections\r\n");
-            IPGlobalProperties properties = IPGlobalProperties.GetIPGlobalProperties();
-            TcpConnectionInformation[] connections = properties.GetActiveTcpConnections();
-            foreach (TcpConnectionInformation c in connections)
+            try
             {
-                ServerInfoOutput.AppendText("Local :  " + c.LocalEndPoint.Address + "::");
-                ServerInfoOutput.AppendText("Remote : " + c.RemoteEndPoint.Address + "::");
-                ServerInfoOutput.AppendText(c.State + "\r\n");
+                ServerInfoOutput.AppendText("\n         This server is running on ports:"+ ports[7].Replace("server-port=", "") + "," + ports[8].Replace("server-portv6=", "")+"       ");
+                ServerInfoOutput.AppendText("\nPROTO           LOCAL IP             REMOTE IP          STATE ");
+                using (Process process = new Process())
+                {
+                    process.StartInfo.FileName = FileName;
+                    process.StartInfo.Arguments = netstatargs;
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.Start();
+                    StreamReader reader = process.StandardOutput;
+                    string output = reader.ReadToEnd();
+                    string[] stringSeparators = new string[] { "TCP" };
+                    var words = output.Split(stringSeparators, StringSplitOptions.None);
+                    foreach (var word in words)
+                    {
+                        word.Trim(' ', ' ');
+                        if (word.Contains("ESTABLISHED")) // is a connection established ? on port 19132 ?
+                        {
+                            if (word.Contains(":"+ports[7].Replace("server-port=","")) || word.Contains(":"+ports[8].Replace("server-portv6=", "")) || word.Contains(":80"))//bedrock server default ports && port 80 for testing
+                            {
+                                ServerInfoOutput.AppendText("\rTCP  " + word.Replace("   ", "  ").Replace("\r\n", "").Replace("ESTABLISHED", "ESTA"));
+                            }
+                        }
+                    }
+                    process.WaitForExit();
+                }               
             }
-            return "";
+            catch
+            {
+            }
+           return output;
         }
 
         private string getServerInfo()
