@@ -326,7 +326,7 @@ namespace MinecraftBedrockServerAdmin
                
             try
             {
-                if (stopServer)
+                if (stopServer == true)
                 {
                     
                     Thread.Sleep(500);
@@ -341,7 +341,7 @@ namespace MinecraftBedrockServerAdmin
                 }
                 else
                 {
-                    if (!stopServer && this.minecraftProcess.HasExited)
+                    if (stopServer == false && this.minecraftProcess.HasExited)
                     {
                         MessageBox.Show("server stopped, restarting","ERROR", MessageBoxButtons.OK,MessageBoxIcon.Warning);
                         startServerButton_Click("server",e);
@@ -656,10 +656,10 @@ namespace MinecraftBedrockServerAdmin
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             bool backedup = false;
-            int[] sleepytimes = new int[] { 240000, 60000, 30000, 10000 };
-            while (!backedup)
+            int[] sleepytimes = new int[] { 240000, 60000, 30000, 10000 };//time in ms to pause the server 4 min, 1 min, 30 sec, 10 sec.
+            while (!backedup)//while the backup is NOT complete.
             {
-                foreach (int sleeptime in sleepytimes)
+                foreach (int sleeptime in sleepytimes)//loop through the sleep times to notify the users a save is coming
                 {
                     int Minutes = sleeptime / 60 / 1000;
                     int seconds = sleeptime / 1000;
@@ -668,24 +668,24 @@ namespace MinecraftBedrockServerAdmin
                     else if(Minutes <= 0) { time = seconds.ToString() + " seconds"; }
                     mcInputStream.WriteLine("say THE SERVER WILL BE PAUSING FOR A BACKUP IN " + time);
                     txtOutput.AppendText("\r\n\r\nTelling players the server is pausing in " + time + "\r\n");
-                    File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "Telling players the server is going down in " + time + "\r\n");
+                    File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "Telling players the server is pausing in " + time + "\r\n");//server logs
                     txtOutput.ScrollToCaret();
                     Thread.Sleep(sleeptime);
                 }
-                mcInputStream.WriteLine("say SERVER IS PAUSED, PLEASE WAIT ROUGHLY 12 SECONDS TO SAVE.");
+                mcInputStream.WriteLine("say SERVER IS PAUSED, PLEASE WAIT ROUGHLY 12 SECONDS TO SAVE.");//notify the server is pausing
                 txtOutput.AppendText("\r\nPausing Server for world backup\r\n");
                 File.AppendAllText(@"ServerLog.csv", DateTime.Now.ToString() + " " + "Pausing Server for world backup\r\n");
-                mcInputStream.WriteLine("save hold");
+                mcInputStream.WriteLine("save hold");//pause the server
                 txtOutput.ScrollToCaret();
                 Thread.Sleep(9000);
-                mcInputStream.WriteLine("save query");
+                mcInputStream.WriteLine("save query");//save the query ( this is a world save the save file can then be compressed later for archival purposes
                 txtOutput.ScrollToCaret();
                 Thread.Sleep(1000);
-                mcInputStream.WriteLine("save resume");
-                mcInputStream.WriteLine("say THE SERVER HAS COMPLETED THE BACKUP");
+                mcInputStream.WriteLine("save resume");//resume the server
+                mcInputStream.WriteLine("say THE SERVER HAS COMPLETED THE BACKUP");//notify the users the save is complete.
                 txtOutput.AppendText("\r\n\r\nTelling players the server has completed being backed up\r\n");
                 txtOutput.ScrollToCaret();
-                backedup = true;
+                backedup = true;//end the while loop
             }
 
         }
@@ -732,7 +732,7 @@ namespace MinecraftBedrockServerAdmin
         }
         public static string GetLocalIPAddress()
         {
-            if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() == true)
+            if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() == true)//if the server has internet access well use a web service to get the IP
             {
                 const string Address = "http://icanhazip.com";
                 string ip = new WebClient().DownloadString(Address);
@@ -742,7 +742,7 @@ namespace MinecraftBedrockServerAdmin
                     return ip;
                 }
             }
-            else
+            else // otherwise use internal services. in most cases this returns the internal network IP. 127.0.0.1 or 192.*.*.*
             {
                 var host = Dns.GetHostEntry(Dns.GetHostName());
                 foreach (var ip in host.AddressList)
