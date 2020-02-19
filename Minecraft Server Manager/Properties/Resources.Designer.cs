@@ -81,6 +81,16 @@ namespace MinecraftBedrockServerAdmin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon minecraft_windows10_tile_g6c_icon {
+            get {
+                object obj = ResourceManager.GetObject("minecraft_windows10_tile_g6c_icon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] permissions {
