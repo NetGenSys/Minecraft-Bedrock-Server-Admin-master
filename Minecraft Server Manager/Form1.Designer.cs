@@ -93,7 +93,7 @@ namespace MinecraftBedrockServerAdmin {
             this.ServerInfoOutput.BackColor = System.Drawing.Color.LightSkyBlue;
             this.ServerInfoOutput.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.ServerInfoOutput.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.ServerInfoOutput.Location = new System.Drawing.Point(725, 124);
+            this.ServerInfoOutput.Location = new System.Drawing.Point(713, 124);
             this.ServerInfoOutput.Margin = new System.Windows.Forms.Padding(4);
             this.ServerInfoOutput.Name = "ServerInfoOutput";
             this.ServerInfoOutput.Size = new System.Drawing.Size(387, 158);
@@ -512,7 +512,7 @@ namespace MinecraftBedrockServerAdmin {
             // 
             this.TCPIPButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.TCPIPButton.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.TCPIPButton.Location = new System.Drawing.Point(725, 86);
+            this.TCPIPButton.Location = new System.Drawing.Point(713, 86);
             this.TCPIPButton.Margin = new System.Windows.Forms.Padding(4);
             this.TCPIPButton.Name = "TCPIPButton";
             this.TCPIPButton.Size = new System.Drawing.Size(100, 33);
@@ -525,7 +525,7 @@ namespace MinecraftBedrockServerAdmin {
             // 
             this.ServerInfoButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ServerInfoButton.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.ServerInfoButton.Location = new System.Drawing.Point(832, 86);
+            this.ServerInfoButton.Location = new System.Drawing.Point(821, 86);
             this.ServerInfoButton.Margin = new System.Windows.Forms.Padding(4);
             this.ServerInfoButton.Name = "ServerInfoButton";
             this.ServerInfoButton.Size = new System.Drawing.Size(100, 33);
@@ -541,7 +541,7 @@ namespace MinecraftBedrockServerAdmin {
             this.IPBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.IPBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.IPBox1.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.IPBox1.Location = new System.Drawing.Point(939, 91);
+            this.IPBox1.Location = new System.Drawing.Point(929, 91);
             this.IPBox1.Margin = new System.Windows.Forms.Padding(4);
             this.IPBox1.MaxLength = 16;
             this.IPBox1.Multiline = false;
@@ -550,7 +550,9 @@ namespace MinecraftBedrockServerAdmin {
             this.IPBox1.Size = new System.Drawing.Size(171, 25);
             this.IPBox1.TabIndex = 36;
             this.IPBox1.Text = "";
+            this.yourToolTip.SetToolTip(this.IPBox1, "Click to copy to clipboard.");
             this.IPBox1.WordWrap = false;
+            this.IPBox1.Click += new System.EventHandler(this.IPBox1_Click);
             this.IPBox1.TextChanged += new System.EventHandler(this.IPBox1_TextChanged);
             // 
             // label9
