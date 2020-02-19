@@ -80,6 +80,9 @@
   <PropertyGroup>
     <StartupObject>MinecraftBedrockServerAdmin.Program</StartupObject>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\minecraft_windows10_tile_g6c_icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="MetroFramework, Version=1.2.0.3, Culture=neutral, PublicKeyToken=5f91a84759bf584a, processorArchitecture=MSIL">
       <HintPath>..\packages\MetroFramework.RunTime.1.2.0.3\lib\net40-Client\MetroFramework.dll</HintPath>
@@ -160,7 +163,6 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\minecraft_windows10_tile_g6c_icon.ico" />
     <None Include="Resources\Minecraft-windows10-tile.png" />
   </ItemGroup>
   <ItemGroup>
@@ -182,7 +184,10 @@
     <None Include="Properties\Resources\bedrock_server.exe" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\NETSTAT.EXE" />
+    <None Include="Resources\Icon1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\minecraft_windows10_tile_g6c_icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
