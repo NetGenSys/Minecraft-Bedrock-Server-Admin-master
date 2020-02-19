@@ -291,6 +291,7 @@ namespace MinecraftBedrockServerAdmin
         }
         private void StartServerFunction(EventArgs e)
         {
+            //update to wget from https://minecraft.azureedge.net/bin-win/bedrock-server-*.zip
             if (!File.Exists(System.IO.Directory.GetCurrentDirectory() + "/bedrock_server.exe"))
             {
                 string Serverpath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "bedrock_server.exe");
