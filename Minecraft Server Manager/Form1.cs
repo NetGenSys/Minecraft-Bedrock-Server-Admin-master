@@ -147,11 +147,11 @@ namespace MinecraftBedrockServerAdmin
                 {
                     if (strText.Contains("aboutme"))
                     {
-                        var aboutme = "               Modified and Updated by AJG.\r\n " +
-                                      "Created by Benjerman https://github.com/Benjerman " +
+                        var aboutme = "\r\n\r\n\r\n     Modified and Updated by AJG https://github.com/NetGenSys \r\n " +
                                       "Location: RA 0h 42m 44s | Dec +41° 16′ 9″\r\n " +
-                                      "Written in: C#\r\n" +
-                                      "Thank you for using my software :)";
+                                      "Created by Benjerman https://github.com/Benjerman \r\n " +
+                                      "Written in: C# \r\n" +
+                                      "Thank you for Choosing this software :)";
                         txtOutput.Clear();
                         this.txtOutput.AppendText(aboutme);
                         txtOutput.ScrollToCaret();
