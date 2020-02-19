@@ -124,6 +124,9 @@
   <data name="bedrock_server" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\bedrock_server.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="minecraft_windows10_tile_g6c_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\minecraft_windows10_tile_g6c_icon.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="permissions" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\permissions.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
