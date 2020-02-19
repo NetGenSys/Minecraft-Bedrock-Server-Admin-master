@@ -147,7 +147,8 @@ namespace MinecraftBedrockServerAdmin
                 {
                     if (strText.Contains("aboutme"))
                     {
-                        var aboutme = "               Created by Andrew G.\r\n " +
+                        var aboutme = "               Modified and Updated by AJG.\r\n " +
+                                      "Created by Benjerman https://github.com/Benjerman " +
                                       "Location: RA 0h 42m 44s | Dec +41° 16′ 9″\r\n " +
                                       "Written in: C#\r\n" +
                                       "Thank you for using my software :)";
