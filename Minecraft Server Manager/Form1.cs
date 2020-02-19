@@ -25,9 +25,10 @@ namespace MinecraftBedrockServerAdmin
         public delegate void fpTextBoxCallback_t(string strText);
         public fpTextBoxCallback_t fpTextBoxCallback;
         public string output;
-        readonly string[] ports = File.ReadAllLines(Directory.GetCurrentDirectory() + "\\server.properties", Encoding.UTF8);
+        readonly string[] server_properties = File.ReadAllLines(Directory.GetCurrentDirectory() + "\\server.properties", Encoding.UTF8);
+        
 
-        public Form1()
+         public Form1()
         {
             string startServer = ConfigurationManager.AppSettings["startServer"].ToString();
             string automaticBackups = ConfigurationManager.AppSettings["automaticBackups"].ToString();
@@ -218,7 +219,16 @@ namespace MinecraftBedrockServerAdmin
                     fpTextBoxCallback(Environment.NewLine + outLine.Data);
             }
         }
-
+        private void ServerInfoOutputHandler(object sendingProcess, System.Diagnostics.DataReceivedEventArgs outLine)
+        {
+            if (!String.IsNullOrEmpty(outLine.Data))
+            {
+                if (this.InvokeRequired)
+                    this.Invoke(fpTextBoxCallback, Environment.NewLine + outLine.Data);
+                else
+                    fpTextBoxCallback(Environment.NewLine + outLine.Data);
+            }
+        }
         private void btnExecute_Click(object sender, EventArgs e)
         {
             try
@@ -453,8 +463,7 @@ namespace MinecraftBedrockServerAdmin
         {
             try
             {
-                IPBox1.Clear();
-                IPBox1.AppendText(GetLocalIPAddress());
+
                 if (players != players2)
                 {
                     playerTxtOutput.Clear();
@@ -463,6 +472,10 @@ namespace MinecraftBedrockServerAdmin
                 //playerTxtOutput.Clear();
                 mcInputStream.WriteLine("list");
                 players = players2;
+                IPBox1.Clear();
+                IPBox1.AppendText(GetLocalIPAddress());
+                ServerInfoOutput.Clear();
+                ServerInfoOutput.AppendText(ShowActiveTcpConnections());
 
             }
             catch
@@ -470,19 +483,57 @@ namespace MinecraftBedrockServerAdmin
 
             }
         }
-
+        private bool IsNumeric(object Expression)
+        {
+            bool isNum = Double.TryParse(Convert.ToString(Expression), System.Globalization.NumberStyles.Any, System.Globalization.NumberFormatInfo.InvariantInfo, out _);
+            return isNum;
+        }
         private string ShowActiveTcpConnections()
         {
+            string[] bedrock_ports = Array.Empty<string>();
             try
             {
-                ServerInfoOutput.AppendText("\n         This server is running on ports:"+ ports[7].Replace("server-port=", "") + "," + ports[8].Replace("server-portv6=", "")+"       ");
+                //dirty hack job to find the pos of the server-port vars in server.properties
+                //Requires update.
+                if (IsNumeric(server_properties[7].Replace("server-port=", "")) == true) //pos with # and \n removed
+                {
+                    bedrock_ports = new string[]{ server_properties[7].Replace("server-port=", ""), server_properties[8].Replace("server-portv6=", "") };//isolate the port #
+                }
+                else if (IsNumeric(server_properties[30].Replace("server-port=", "")) == true)//default pos
+                {
+                    bedrock_ports = new string[]{ server_properties[30].Replace("server-port=", ""), server_properties[34].Replace("server-portv6=", "") };//isolate the port #
+                }
+                else
+                {
+                    ServerInfoOutput.AppendText("SERVER PORTS ARE NOT NUMBERS!!\r\n");//no port number
+                }
+                /*
+                int ii = 0;
+                foreach(string ser_prop_lines in server_properties)
+                {
+                    if (ser_prop_lines.Contains("server-port=") || ser_prop_lines.Contains("server-portv6="))
+                    {
+                        bedrock_ports[ii] = ser_prop_lines;
+                        ii++;
+                    }
+                    ServerInfoOutput.AppendText(ser_prop_lines);
+                }*/
+                //ServerInfoOutput.AppendText("ports are on line " + bedrock_ports[0] + " and " + bedrock_ports[1] + "; look for : " + bedrock_ports[0] +"\n");
+                ServerInfoOutput.AppendText("\n         This server is running on ports:"+ bedrock_ports[0] + "," + bedrock_ports[1] + "       ");
                 ServerInfoOutput.AppendText("\nPROTO           LOCAL IP             REMOTE IP          STATE ");
                 using (Process process = new Process())
                 {
                     process.StartInfo.FileName = FileName;
                     process.StartInfo.Arguments = netstatargs;
                     process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.RedirectStandardInput = true;
                     process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.EnableRaisingEvents = false;
+                    process.Exited += new EventHandler(ProcessExited);
+                    process.ErrorDataReceived += new System.Diagnostics.DataReceivedEventHandler(ServerInfoOutputHandler);
+                    process.OutputDataReceived += new System.Diagnostics.DataReceivedEventHandler(ServerInfoOutputHandler);
                     process.Start();
                     StreamReader reader = process.StandardOutput;
                     string output = reader.ReadToEnd();
@@ -491,9 +542,9 @@ namespace MinecraftBedrockServerAdmin
                     foreach (var word in words)
                     {
                         word.Trim(' ', ' ');
-                        if (word.Contains("ESTABLISHED")) // is a connection established ? on port 19132 ?
+                        if (word.Contains("ESTABLISHED")) // is a connection established ?
                         {
-                            if (word.Contains(":"+ports[7].Replace("server-port=","")) || word.Contains(":"+ports[8].Replace("server-portv6=", "")) || word.Contains(":80"))//bedrock server default ports && port 80 for testing
+                            if (word.Contains(":"+ bedrock_ports[0]) || word.Contains(":"+ bedrock_ports[1]))// on bedrock server default ports 
                             {
                                 ServerInfoOutput.AppendText("\rTCP  " + word.Replace("   ", "  ").Replace("\r\n", "").Replace("ESTABLISHED", "ESTA"));
                             }
@@ -711,7 +762,10 @@ namespace MinecraftBedrockServerAdmin
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) { }
-        private void playerTxtOutput_TextChanged(object sender, EventArgs e) { }
+        private void playerTxtOutput_TextChanged(object sender, EventArgs e) 
+        {
+            
+        }
         private void label7_Click(object sender, EventArgs e) { }
         private void deOpTextBox1_TextChanged(object sender, EventArgs e) { }
         private void falseGRRadioButton2_CheckedChanged(object sender, EventArgs e) { }
@@ -731,6 +785,11 @@ namespace MinecraftBedrockServerAdmin
         private void button3_Click(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Minimized;
+        }
+        private void IPBox1_Click(Object sender, EventArgs e)
+        {
+            string text = IPBox1.Text;
+            Clipboard.SetText(text);
         }
         private void IPBox1_TextChanged(object sender, EventArgs e)
         {
