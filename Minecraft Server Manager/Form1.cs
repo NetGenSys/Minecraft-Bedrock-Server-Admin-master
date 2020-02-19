@@ -236,8 +236,8 @@ namespace MinecraftBedrockServerAdmin
             {
                 if (this.minecraftProcess.HasExited)
                 {
-                    txtOutput.AppendText("\r\n\r\nThe server has been shutdown.\r\n");
-                    File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "The server has been shutdown.\r\n");
+                   //txtOutput.AppendText("\r\n\r\nThe server has been shutdown.\r\n");
+                    //File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "The server has been shutdown.\r\n");
                     return;
                 }
                 mcInputStream.WriteLine(txtInputCommand.Text);
@@ -247,8 +247,25 @@ namespace MinecraftBedrockServerAdmin
 
         public void ProcessExited(object sender, EventArgs e)
         {
-            txtOutput.AppendText("\r\n\r\nThe server has been shutdown.\r\n");
-            File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "The server has been shutdown.\r\n");
+            if (stopServer == true)
+            {
+                txtOutput.AppendText("\r\n\r\nThe server has been shutdown.\r\n");
+                File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "The server has been shutdown.\r\n");
+                //Thread.Sleep(200);
+                //File.Delete(System.IO.Directory.GetCurrentDirectory() + "/bedrock_server.exe");
+                //File.Delete(System.IO.Directory.GetCurrentDirectory() + "/server.properties");
+                //File.Delete(System.IO.Directory.GetCurrentDirectory() + "/permissions.json");
+                //File.Delete(System.IO.Directory.GetCurrentDirectory() + "/whitelist.json");
+            }
+            else
+            {
+                if (stopServer == false && this.minecraftProcess.HasExited)
+                {
+                    MessageBox.Show("server stopped, restarting", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    startServerButton_Click(null, EventArgs.Empty);
+                }
+            }
+           
         }
 
         private void backupButton_Click(object sender, EventArgs e)
@@ -276,16 +293,16 @@ namespace MinecraftBedrockServerAdmin
                         }
                     }
                     Thread.Sleep(1000);
-                    StartServerFunction(e);
+                    StartServerFunction(EventArgs.Empty);
                     
                 }
                 else if (confirmResult == DialogResult.No)
                 {
-                    return;
+                    Application.ExitThread();
                 }
             }
             else if(pname.Length == 0){
-                StartServerFunction(e);
+                StartServerFunction(EventArgs.Empty);
             }
 
         }
@@ -327,27 +344,8 @@ namespace MinecraftBedrockServerAdmin
                
             try
             {
-                if (stopServer == true)
-                {
-                    
-                    Thread.Sleep(500);
-                    //File.Delete(System.IO.Directory.GetCurrentDirectory() + "/bedrock_server.exe");
-                    //File.Delete(System.IO.Directory.GetCurrentDirectory() + "/server.properties");
-                    //File.Delete(System.IO.Directory.GetCurrentDirectory() + "/permissions.json");
-                    //File.Delete(System.IO.Directory.GetCurrentDirectory() + "/whitelist.json");
-                    //playerTxtOutput.Clear();
-                    gameRulesTxt.Clear();
-                    btnExecute_Click("server",e);
-                   stopServer = false;
-                }
-                else
-                {
-                    if (stopServer == false && this.minecraftProcess.HasExited)
-                    {
-                        MessageBox.Show("server stopped, restarting","ERROR", MessageBoxButtons.OK,MessageBoxIcon.Warning);
-                        startServerButton_Click("server",e);
-                    }
-                }
+                gameRulesTxt.Clear();
+                playerTxtOutput.Clear();
             }
             catch (Exception ex)
             {
@@ -533,7 +531,6 @@ namespace MinecraftBedrockServerAdmin
                     process.StartInfo.RedirectStandardOutput = true;
                     process.StartInfo.RedirectStandardError = true;
                     process.EnableRaisingEvents = false;
-                    process.Exited += new EventHandler(ProcessExited);
                     process.ErrorDataReceived += new System.Diagnostics.DataReceivedEventHandler(ServerInfoOutputHandler);
                     process.OutputDataReceived += new System.Diagnostics.DataReceivedEventHandler(ServerInfoOutputHandler);
                     process.Start();
@@ -760,14 +757,9 @@ namespace MinecraftBedrockServerAdmin
         private void Form1_Load(object sender, EventArgs e)
         {
             IPBox1.AppendText(GetLocalIPAddress());
-
         }
-
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) { }
-        private void playerTxtOutput_TextChanged(object sender, EventArgs e) 
-        {
-            
-        }
+        private void playerTxtOutput_TextChanged(object sender, EventArgs e) { }
         private void label7_Click(object sender, EventArgs e) { }
         private void deOpTextBox1_TextChanged(object sender, EventArgs e) { }
         private void falseGRRadioButton2_CheckedChanged(object sender, EventArgs e) { }
@@ -778,11 +770,10 @@ namespace MinecraftBedrockServerAdmin
         private void trueGRRadioButton_CheckedChanged(object sender, EventArgs e) { }
         private void gameRuleComboBox_SelectedIndexChanged(object sender, EventArgs e) { }
         private void opPlayerTextBox1_TextChanged(object sender, EventArgs e) { }
-        private void label8_Click(object sender, EventArgs e) { }
-      
+        private void label8_Click(object sender, EventArgs e) { }    
         private void button2_Click(object sender, EventArgs e)
         {
-            System.Windows.Forms.Application.ExitThread();
+            Application.ExitThread();
         }
         private void button3_Click(object sender, EventArgs e)
         {
