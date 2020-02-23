@@ -30,8 +30,8 @@ namespace MinecraftBedrockServerAdmin
         public string output;
         string[] server_properties = File.ReadAllLines(Directory.GetCurrentDirectory() + "\\server.properties", Encoding.UTF8);
         IsolatedStorageFile isoStore = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Domain | IsolatedStorageScope.Assembly, null, null);
-        public string[] server_ports_list_mod;
         public string[] server_ports;
+        public string[] server_ports_arr;
 
         public Form1()
         {
@@ -290,7 +290,7 @@ namespace MinecraftBedrockServerAdmin
                         {
                             using (StreamWriter writer = new StreamWriter(isoStream))
                             {
-                                writer.WriteLine(server_port +", "+ server_ports_list);
+                                writer.WriteLine(server_port +","+ server_ports_list);
                                 writer.Close();
                             }
                         }
@@ -605,12 +605,10 @@ namespace MinecraftBedrockServerAdmin
         }
         public string ShowActiveTcpConnections()
         {
+
             string[] bedrock_ports = Array.Empty<string>();
             try
             {
-                //dirty hack job to find the pos of the server-port vars in server.properties
-                //Requires update.
-
                 if (isoStore.FileExists("serverPorts.txt") == true)
                 {
                     using (IsolatedStorageFileStream isoStream = new IsolatedStorageFileStream("serverPorts.txt", FileMode.Open, isoStore))
@@ -620,12 +618,14 @@ namespace MinecraftBedrockServerAdmin
                             //string lines = reader.ReadToEnd();
                             server_port = reader.ReadToEnd().Replace("\r\n", "");
                             server_port = server_port.Substring(server_port.IndexOf(',') + 1);
+                            server_port += ",80";
+                            server_ports_arr = server_port.Split(',');
                         }
                     }
                    
                 }
                 else
-                {
+                {//this is redundant, if the above doesn't return with the ports, the server is not running. leaving for a few update iterations. 
                     if (IsNumeric(server_properties[7].Replace("server-port=", "")) == true) //pos with # and \n removed
                     {
                         server_port = server_properties[7].Replace("server-port=", "")+","+ server_properties[8].Replace("server-portv6=", "");//isolate the port #
@@ -640,8 +640,9 @@ namespace MinecraftBedrockServerAdmin
                         ServerInfoOutput.AppendText("SERVER PORTS ARE NOT NUMBERS!!\r\n");//no port number
                     }
                 }
-                ServerInfoOutput.AppendText("\n         This server is running on ports:"+ server_port + "       ");
-                ServerInfoOutput.AppendText("\nPROTO           LOCAL IP             REMOTE IP          STATE ");
+                ServerInfoOutput.AppendText("\n    running on ports: "+ server_port + "     ");
+                ServerInfoOutput.AppendText("\n  PROTO           LOCAL IP             REMOTE IP          STATE ");
+
                 using (Process process = new Process())
                 {
                     process.StartInfo.FileName = FileName;
@@ -661,13 +662,10 @@ namespace MinecraftBedrockServerAdmin
                     var words = output.Split(stringSeparators, StringSplitOptions.None);
                     foreach (var word in words)
                     {
-                        word.Trim(' ', ' ');
-                        if (word.Contains("ESTABLISHED")) // is a connection established ?
+                        foreach(string ptz in server_ports_arr)
+                        if (word.Contains(":"+ ptz) && word.Contains("ESTABLISHED"))// on bedrock server default ports 
                         {
-                            if (word.Contains(":"+ bedrock_ports[0]) || word.Contains(":"+ bedrock_ports[1]))// on bedrock server default ports 
-                            {
-                                ServerInfoOutput.AppendText("\rTCP  " + word.Replace("   ", "  ").Replace("\r\n", "").Replace("ESTABLISHED", "ESTA"));
-                            }
+                            ServerInfoOutput.AppendText("\rTCP  " + word.Replace("   ", "  ").Replace("\r\n", "").Replace("ESTABLISHED", "ESTA"));
                         }
                     }
                     process.WaitForExit();
