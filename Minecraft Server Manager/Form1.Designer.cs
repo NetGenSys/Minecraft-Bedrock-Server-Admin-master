@@ -551,6 +551,16 @@ namespace MinecraftBedrockServerAdmin {
             this.ComboBox1.Size = new System.Drawing.Size(445, 23);
             this.ComboBox1.TabIndex = 43;
             this.ComboBox1.SelectedIndexChanged += new System.EventHandler(this.ComboBox1_SelectedIndexChanged_1);
+            // Create a Menu Item
+
+            ToolStripMenuItem FileMenu = new ToolStripMenuItem("File");
+
+            FileMenu.BackColor = System.Drawing.Color.OrangeRed;
+            FileMenu.ForeColor = System.Drawing.Color.Black;
+            FileMenu.Text = "Action Menu";
+            this.ComboBox1.Font = new System.Drawing.Font("Lucida Console", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            FileMenu.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            FileMenu.ToolTipText = "Click Me";
             // 
             // Form1
             // 
