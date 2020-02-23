@@ -1,10 +1,12 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.IO.IsolatedStorage;
 using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Management;
 using System.Net;
 using System.Net.Sockets;
@@ -26,8 +28,10 @@ namespace MinecraftBedrockServerAdmin
         public delegate void fpTextBoxCallback_t(string strText);
         public fpTextBoxCallback_t fpTextBoxCallback;
         public string output;
-        readonly string[] server_properties = File.ReadAllLines(Directory.GetCurrentDirectory() + "\\server.properties", Encoding.UTF8);
-
+        string[] server_properties = File.ReadAllLines(Directory.GetCurrentDirectory() + "\\server.properties", Encoding.UTF8);
+        IsolatedStorageFile isoStore = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Domain | IsolatedStorageScope.Assembly, null, null);
+        public string[] server_ports_list_mod;
+        public string[] server_ports;
 
         public Form1()
         {
@@ -42,6 +46,8 @@ namespace MinecraftBedrockServerAdmin
                                     "poison","wither","health_boost","absorption","saturation",
                                     "levitation","fatal_poison","conduit_power","slow_falling",
                                     "bad_omen","village_hero"};
+            ContextMenuStrip PopupMenu = new ContextMenuStrip();
+
             CheckForIllegalCrossThreadCalls = false;
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
             fpTextBoxCallback = new fpTextBoxCallback_t(AddTextToOutputTextBox);
@@ -85,7 +91,7 @@ namespace MinecraftBedrockServerAdmin
             ServerCommandList.Add("kick {player}");
             ServerCommandList.Add("give {player} {item} {count}");
             ServerCommandList.Add("tp {who} { to where }");
-            ServerCommandList.Add("effect {player} {effect} {duration} {#1-255}");
+            ServerCommandList.Add("effect <player: target> <effect: Effect> [seconds: int] [amplifier: int-255] [true|false]");
             ServerCommandList.Add("summon ravager ~ ~ ~ minecraft:spawn_for_raid_with_pillager_rider");
             ServerCommandList.Add("summon ravager ~ ~ ~ minecraft:spawn_with_vindicator_captain_rider");
             ServerCommandList.Add("time set day");
@@ -97,7 +103,10 @@ namespace MinecraftBedrockServerAdmin
             ServerCommandList.Add("weather clear");
             ServerCommandList.Add("weather rain");
             ServerCommandList.Add("weather thunder");
-
+            foreach(string effect in userEffects)
+            {
+                ServerCommandList.Add("effect @a " + effect + " 500 255 true");
+            }
 
             if (startServer == "true")
             {
@@ -121,7 +130,7 @@ namespace MinecraftBedrockServerAdmin
         private int restartTryLimit = 0;
         public string FileName = "C:\\Windows\\System32\\NETSTAT.EXE";
         public string netstatargs = " -n";
-        private string server_ports_list;
+        public string server_port;
 
         private void SetUpTimer()
         {
@@ -137,13 +146,28 @@ namespace MinecraftBedrockServerAdmin
                 backgroundWorker1.RunWorkerAsync();
             }, null, timeToGo, Timeout.InfiniteTimeSpan);
         }
+        static string ConvertStringArrayToString(string[] array)
+        {
+            // Concatenate all the elements into a StringBuilder.
+            StringBuilder builder = new StringBuilder();
+            foreach (string value in array)
+            {
+                builder.Append(value);
+                builder.Append('.');
+            }
+            return builder.ToString();
+        }
 
-        
         public void AddTextToOutputTextBox(string strText)
         {
+            string[] avoidmelist = {"NO LOG FILE!","Version","Session ID","Level Name:","Game mode","Difficulty"};
             string blah = strText.Replace("\r", "");
             try
             {
+                if (avoidmelist.Any(strText.Contains))
+                {
+                    return;
+                }
                 if (blah.Contains("CrashReporter") && restartTryLimit < 3)
                 {
                     Thread.Sleep(5000);
@@ -198,9 +222,9 @@ namespace MinecraftBedrockServerAdmin
                 {
                     if (strText.Contains("aboutme"))
                     {
-                        var aboutme = "\r\n\r\n\r\n     Modified and Updated by Prunuspopper@NetGenSys https://github.com/NetGenSys \r\n " +
+                        var aboutme = "\r\n\r\n\r\n     Updated by Prunuspopper@NetGenSys https://github.com/NetGenSys \r\n " +
                                       "Location: RA 0h 42m 44s | Dec +41° 16′ 9″\r\n " +
-                                      "Created by Benjerman https://github.com/Benjerman \r\n " +
+                                      "Original source by Benjerman https://github.com/Benjerman \r\n " +
                                       "Written in: C# \r\n" +
                                       "Thank you for Choosing this software :)\r\n";
                         txtOutput.Clear();
@@ -214,7 +238,12 @@ namespace MinecraftBedrockServerAdmin
                         MessageBox.Show(blah, "Unknown Command", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-                
+                if (strText.Contains("No targets matched selector"))
+                {
+                    txtOutput.AppendText("\r\n No one on by that name, or No one is on.");
+                    return;
+                }
+
                 if (blah.Contains("Network port occupied, can't start server."))
                 {
                     this.txtOutput.AppendText(strText);
@@ -234,8 +263,41 @@ namespace MinecraftBedrockServerAdmin
                     string[] server_ports = removeCR.Split(',');
                     Array.Sort(server_ports);
                     string server_ports_list = string.Join("\r\n", server_ports);
-                    removeCR = removeCR.Remove(0,49);
-                    //txtOutput.AppendText("Hosted On "+ removeCR.Replace("IPv6 supported,", "").Replace("IPv4 supported,",""));
+                    server_ports_list = removeCR.Remove(0, 49).Replace("IPv6 supported,", "").Replace("IPv4 supported,", "");
+                    if (isoStore.FileExists("serverPorts.txt") == false)
+                    {
+                        using (IsolatedStorageFileStream isoStream = new IsolatedStorageFileStream("serverPorts.txt", FileMode.CreateNew, isoStore))
+                        {
+                            using (StreamWriter writer = new StreamWriter(isoStream))
+                            {
+                                
+                                writer.WriteLine(server_ports_list);
+                                writer.Close();
+                            }
+                        }
+                    }
+                    if (isoStore.FileExists("serverPorts.txt") == true)
+                    {
+                        using (IsolatedStorageFileStream isoStream = new IsolatedStorageFileStream("serverPorts.txt", FileMode.Open, isoStore))
+                        {
+                            using (StreamReader reader = new StreamReader(isoStream))
+                            {
+                                server_port = reader.ReadToEnd();
+                               
+                            }
+                        }
+                        using (IsolatedStorageFileStream isoStream = new IsolatedStorageFileStream("serverPorts.txt", FileMode.Truncate, isoStore))
+                        {
+                            using (StreamWriter writer = new StreamWriter(isoStream))
+                            {
+                                writer.WriteLine(server_port +", "+ server_ports_list);
+                                writer.Close();
+                            }
+                        }
+                        
+                    }
+                    //isoStore.Remove();
+                    return;
                 }
                 if (strText.Contains("players online"))
                 {
@@ -350,9 +412,20 @@ namespace MinecraftBedrockServerAdmin
                 string Whitelistpath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "whitelist.json");
                 File.WriteAllBytes(Whitelistpath, MinecraftBedrockServerAdmin.Properties.Resources.whitelist);
             }
+            if (isoStore.FileExists("serverPorts.txt") == true)
+            {
+                using (IsolatedStorageFileStream isoStream = new IsolatedStorageFileStream("serverPorts.txt", FileMode.Truncate, isoStore))
+                {
+                    using (StreamWriter writer = new StreamWriter(isoStream))
+                    {
+                        writer.WriteLine("");
+                        writer.Close();
+                    }
+                }
+            }
             minecraftProcess = new System.Diagnostics.Process();
             minecraftProcess.StartInfo.FileName = "bedrock_server.exe";
-            AddTextToOutputTextBox("Using this terminal: " + minecraftProcess.StartInfo.FileName);
+            AddTextToOutputTextBox("\n\r  Using this terminal: " + minecraftProcess.StartInfo.FileName);
             minecraftProcess.StartInfo.UseShellExecute = false;
             minecraftProcess.StartInfo.CreateNoWindow = true;
             minecraftProcess.StartInfo.RedirectStandardInput = true;
@@ -371,6 +444,7 @@ namespace MinecraftBedrockServerAdmin
         }
         private void stopServerFunction(EventArgs e)
         {
+
             Process[] pname = Process.GetProcessesByName("bedrock_server");                   
             try
             {
@@ -403,7 +477,8 @@ namespace MinecraftBedrockServerAdmin
 
         private void OnProcessExit(object sender, EventArgs e)
         {
-            Thread.Sleep(5000);
+            //Thread.Sleep(5000);
+            
         }
 
 
@@ -479,6 +554,10 @@ namespace MinecraftBedrockServerAdmin
             Application.ExitThread();
         }
         
+        public void show_error(string error)
+        {
+            MessageBox.Show(error);
+        }
         private void button1_Click(object sender, EventArgs e)
         {
             string trueFalse = " false";
@@ -524,42 +603,44 @@ namespace MinecraftBedrockServerAdmin
             bool isNum = Double.TryParse(Convert.ToString(Expression), System.Globalization.NumberStyles.Any, System.Globalization.NumberFormatInfo.InvariantInfo, out _);
             return isNum;
         }
-        private string ShowActiveTcpConnections()
+        public string ShowActiveTcpConnections()
         {
             string[] bedrock_ports = Array.Empty<string>();
             try
             {
                 //dirty hack job to find the pos of the server-port vars in server.properties
                 //Requires update.
-                if (IsNumeric(server_properties[7].Replace("server-port=", "")) == true) //pos with # and \n removed
+
+                if (isoStore.FileExists("serverPorts.txt") == true)
                 {
-                    bedrock_ports = new string[]{ server_properties[7].Replace("server-port=", ""), server_properties[8].Replace("server-portv6=", "") };//isolate the port #
-                }
-                else if (IsNumeric(server_properties[30].Replace("server-port=", "")) == true)//default pos
-                {
-                    bedrock_ports = new string[]{ server_properties[30].Replace("server-port=", ""), server_properties[34].Replace("server-portv6=", "") };//isolate the port #
+                    using (IsolatedStorageFileStream isoStream = new IsolatedStorageFileStream("serverPorts.txt", FileMode.Open, isoStore))
+                    {
+                        using (StreamReader reader = new StreamReader(isoStream))
+                        {
+                            //string lines = reader.ReadToEnd();
+                            server_port = reader.ReadToEnd().Replace("\r\n", "");
+                            server_port = server_port.Substring(server_port.IndexOf(',') + 1);
+                        }
+                    }
+                   
                 }
                 else
                 {
-                    ServerInfoOutput.AppendText("SERVER PORTS ARE NOT NUMBERS!!\r\n");//no port number
-                }
-                /*
-                int ii = 0;
-                foreach(string ser_prop_lines in server_properties)
-                {
-                    if (ser_prop_lines.Contains("server-port=") || ser_prop_lines.Contains("server-portv6="))
+                    if (IsNumeric(server_properties[7].Replace("server-port=", "")) == true) //pos with # and \n removed
                     {
-                        bedrock_ports[ii] = ser_prop_lines;
-                        ii++;
+                        server_port = server_properties[7].Replace("server-port=", "")+","+ server_properties[8].Replace("server-portv6=", "");//isolate the port #
                     }
-                    ServerInfoOutput.AppendText(ser_prop_lines);
-                }*/
-                //ServerInfoOutput.AppendText("ports are on line " + bedrock_ports[0] + " and " + bedrock_ports[1] + "; look for : " + bedrock_ports[0] +"\n");
-                if(IsNumeric(server_ports_list) == false)
-                {
-                    server_ports_list = bedrock_ports[0] + "," + bedrock_ports[1];
+                    else if (IsNumeric(server_properties[30].Replace("server-port=", "")) == true)//default pos
+                    {
+                        server_port = server_properties[30].Replace("server-port=", "")+","+ server_properties[34].Replace("server-portv6=", "");//isolate the port #
+                    }
+
+                    else
+                    {
+                        ServerInfoOutput.AppendText("SERVER PORTS ARE NOT NUMBERS!!\r\n");//no port number
+                    }
                 }
-                ServerInfoOutput.AppendText("\n         This server is running on ports:"+ server_ports_list + "       ");
+                ServerInfoOutput.AppendText("\n         This server is running on ports:"+ server_port + "       ");
                 ServerInfoOutput.AppendText("\nPROTO           LOCAL IP             REMOTE IP          STATE ");
                 using (Process process = new Process())
                 {
@@ -779,7 +860,7 @@ namespace MinecraftBedrockServerAdmin
         private void Form1_Load(object sender, EventArgs e)
         {
             IPBox1.AppendText(GetLocalIPAddress());
-
+            
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) { }
