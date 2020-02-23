@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -26,9 +27,9 @@ namespace MinecraftBedrockServerAdmin
         public fpTextBoxCallback_t fpTextBoxCallback;
         public string output;
         readonly string[] server_properties = File.ReadAllLines(Directory.GetCurrentDirectory() + "\\server.properties", Encoding.UTF8);
-        
 
-         public Form1()
+
+        public Form1()
         {
             string startServer = ConfigurationManager.AppSettings["startServer"].ToString();
             string automaticBackups = ConfigurationManager.AppSettings["automaticBackups"].ToString();
@@ -46,19 +47,6 @@ namespace MinecraftBedrockServerAdmin
             timer.Start();
 
             dateTimePicker1.Text = date;
-            List<string> weatherList = new List<string>();
-            weatherList.Add("clear");
-            weatherList.Add("rain");
-            weatherList.Add("thunder");
-
-            List<string> clockList = new List<string>();
-            clockList.Add("day");
-            clockList.Add("midnight");
-            clockList.Add("night");
-            clockList.Add("noon");
-            clockList.Add("sunrise");
-            clockList.Add("sunset");
-
             List<string> gameRuleList = new List<string>();
             gameRuleList.Add("commandblockoutput");
             gameRuleList.Add("commandblocksenabled");
@@ -85,10 +73,24 @@ namespace MinecraftBedrockServerAdmin
             gameRuleList.Add("tntexplodes");
 
             List<string> ServerCommandList = new List<string>();
-            ServerCommandList.Add("ban");
-            ServerCommandList.Add("kick");
-            ServerCommandList.Add("give");
-            ServerCommandList.Add("tp");
+            ServerCommandList.Add("");
+            ServerCommandList.Add("ban {player}");
+            ServerCommandList.Add("kick {player}");
+            ServerCommandList.Add("give {player} {item} {count}");
+            ServerCommandList.Add("tp {who} { to where }");
+            ServerCommandList.Add("effect {player} {effect} {duration} {#1-255}");
+            ServerCommandList.Add("summon ravager ~ ~ ~ minecraft:spawn_for_raid_with_pillager_rider");
+            ServerCommandList.Add("summon ravager ~ ~ ~ minecraft:spawn_with_vindicator_captain_rider");
+            ServerCommandList.Add("time set day");
+            ServerCommandList.Add("time set midnight");
+            ServerCommandList.Add("time set night");
+            ServerCommandList.Add("time set noon");
+            ServerCommandList.Add("time set sunrise");
+            ServerCommandList.Add("time set sunset");
+            ServerCommandList.Add("weather clear");
+            ServerCommandList.Add("weather rain");
+            ServerCommandList.Add("weather thunder");
+
 
             if (startServer == "true")
             {
@@ -100,9 +102,10 @@ namespace MinecraftBedrockServerAdmin
                 automaticBackupsCheckBox.Checked = true;
                 SetUpTimer();
             }
-            weatherComboBox.DataSource = weatherList;
-            clockComboBox.DataSource = clockList;
+
             gameRuleComboBox.DataSource = gameRuleList;
+            ComboBox1.DataSource = ServerCommandList;
+                                    
             if (startServer == "true")
             {
                 startServerButton_Click(null, EventArgs.Empty);
@@ -110,7 +113,8 @@ namespace MinecraftBedrockServerAdmin
         } 
         private int restartTryLimit = 0;
         public string FileName = "C:\\Windows\\System32\\NETSTAT.EXE";
-        public string netstatargs = " -n";                
+        public string netstatargs = " -n";
+        private string server_ports_list;
 
         private void SetUpTimer()
         {
@@ -142,16 +146,55 @@ namespace MinecraftBedrockServerAdmin
                 if (blah.Contains("Server Started."))
                 {
                     restartTryLimit = 0;
-                }                
+                }                 
+                if (blah.Contains("Unable to summon object"))
+                {
+                    this.txtOutput.AppendText("\nSummon Object Failed. If using ~ ~ ~, please change to finite coords on an X Y Z axis or the username you wish to summon to..\r\n");
+                    return;
+                }
+                if (blah.Contains("Object successfully summoned"))
+                {
+                    this.txtOutput.AppendText("\nsummon Object was successful.\r\n");
+                    return;
+                }
+                if (strText.Contains("Opped:"))
+                {
+                    string nameofuser = strText.Replace("Opped: ", "").Replace("\r\n", "");
+                    nameofuser = "\"" + nameofuser + "\"";
+                    this.txtOutput.AppendText("\r\n Opped " + nameofuser);
+
+                }
+                if (strText.Contains("Could not op (already op or higher): "))
+                {
+                    try
+                    {
+                        string nameofuser = strText.Replace("Could not op (already op or higher): ", "").Replace("\r\n","");
+                        nameofuser = "\""+nameofuser+"\"";
+                       // MessageBox.Show(nameofuser, "Already OP", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        mcInputStream.WriteLine("deop "+nameofuser);
+                        return;
+                    }
+                    catch
+                    {
+
+                    }
+                }
+                if (strText.Contains("De-opped: "))
+                {
+                    string nameofuser = strText.Replace("De-opped: ", "").Replace("\r\n", "");
+                    //MessageBox.Show(nameofuser, "Removed Operator", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    this.txtOutput.AppendText("\r\nRemoved Op from "+nameofuser);
+                    return;
+                }
                 if (blah.Contains("Unknown command:"))
                 {
                     if (strText.Contains("aboutme"))
                     {
-                        var aboutme = "\r\n\r\n\r\n     Modified and Updated by AJG https://github.com/NetGenSys \r\n " +
+                        var aboutme = "\r\n\r\n\r\n     Modified and Updated by Prunuspopper@NetGenSys https://github.com/NetGenSys \r\n " +
                                       "Location: RA 0h 42m 44s | Dec +41° 16′ 9″\r\n " +
                                       "Created by Benjerman https://github.com/Benjerman \r\n " +
                                       "Written in: C# \r\n" +
-                                      "Thank you for Choosing this software :)";
+                                      "Thank you for Choosing this software :)\r\n";
                         txtOutput.Clear();
                         this.txtOutput.AppendText(aboutme);
                         txtOutput.ScrollToCaret();
@@ -159,11 +202,11 @@ namespace MinecraftBedrockServerAdmin
                     }
                     else
                     {
-                        this.txtOutput.AppendText(blah);
                         txtOutput.ScrollToCaret();
                         MessageBox.Show(blah, "Unknown Command", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
+                
                 if (blah.Contains("Network port occupied, can't start server."))
                 {
                     this.txtOutput.AppendText(strText);
@@ -177,10 +220,20 @@ namespace MinecraftBedrockServerAdmin
                     gameRulesTxt.Text = removeComma;
                     return;
                 }
+                if (strText.Contains("IPv4") || strText.Contains("IPv6"))
+                {
+                    string removeCR = strText.Replace("\r\n", "");
+                    string[] server_ports = removeCR.Split(',');
+                    Array.Sort(server_ports);
+                    string server_ports_list = string.Join("\r\n", server_ports);
+                    removeCR = removeCR.Remove(0,49);
+                    //txtOutput.AppendText("Hosted On "+ removeCR.Replace("IPv6 supported,", "").Replace("IPv4 supported,",""));
+                }
                 if (strText.Contains("players online"))
                 {
                     strText = strText.Replace("\r\n", "");
                 }
+               
                 if (blah.Contains(", xuid") || blah.Contains(", port"))
                 {
                     this.txtOutput.AppendText(strText);
@@ -210,6 +263,8 @@ namespace MinecraftBedrockServerAdmin
             }
             catch (Exception) { }
         }
+
+
         private void ConsoleOutputHandler(object sendingProcess, System.Diagnostics.DataReceivedEventArgs outLine)
         {
             if (!String.IsNullOrEmpty(outLine.Data))
@@ -230,20 +285,7 @@ namespace MinecraftBedrockServerAdmin
                     fpTextBoxCallback(Environment.NewLine + outLine.Data);
             }
         }
-        private void btnExecute_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (this.minecraftProcess.HasExited)
-                {
-                   //txtOutput.AppendText("\r\n\r\nThe server has been shutdown.\r\n");
-                    //File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "The server has been shutdown.\r\n");
-                    return;
-                }
-                mcInputStream.WriteLine(txtInputCommand.Text);
-            }
-            catch { }
-        }
+
 
         public void ProcessExited(object sender, EventArgs e)
         {
@@ -264,15 +306,12 @@ namespace MinecraftBedrockServerAdmin
                 var confirmResult = MessageBox.Show("bedrock_server already running, would you like to restart it??", "CONFIRM", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (confirmResult == DialogResult.Yes)
                 {
-                    string a = "";
                     Process[] procList = Process.GetProcesses();
                     foreach (Process p in procList)
                     {
                         if (p.ProcessName.ToString() == "bedrock_server")
                         {
-                            a += "Process ID=" + p.Id + "\t" + "Process Name=" +
-                            p.ProcessName + "\n";
-                            p.Kill();
+                           p.Kill();
                         }
                     }
                     Thread.Sleep(1000);
@@ -291,7 +330,7 @@ namespace MinecraftBedrockServerAdmin
         }
         private void StartServerFunction(EventArgs e)
         {
-            //update to wget from https://minecraft.azureedge.net/bin-win/bedrock-server-*.zip
+            //update to get from https://minecraft.azureedge.net/bin-win/bedrock-server-*.zip
             if (!File.Exists(System.IO.Directory.GetCurrentDirectory() + "/bedrock_server.exe"))
             {
                 string Serverpath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "bedrock_server.exe");
@@ -324,70 +363,73 @@ namespace MinecraftBedrockServerAdmin
         }
         private void stopServerFunction(EventArgs e)
         {
-               
+            Process[] pname = Process.GetProcessesByName("bedrock_server");                   
             try
             {
                 if (stopServer == true)
                 {
-                    
-                   gameRulesTxt.Clear();
-                    btnExecute_Click("server",e);
-                   stopServer = false;
-                }
-                else
-                {
-                    if (stopServer == false && this.minecraftProcess.HasExited)
+                    gameRulesTxt.Clear();
+                     Process[] procList = Process.GetProcesses();
+                    foreach (Process p in procList)
                     {
-                        MessageBox.Show("server stopped, restarting","ERROR", MessageBoxButtons.OK,MessageBoxIcon.Warning);
-                        startServerButton_Click("server",e);
+                        if (p.ProcessName.ToString() == "bedrock_server")
+                        {
+                            p.Kill();
+                        }
                     }
+                    stopServer = false;
+               }else
+                {
+                     if (stopServer == false && this.minecraftProcess.HasExited)
+                      {
+                            MessageBox.Show("server stopped, restarting", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            startServerButton_Click("server", e);
+                      }
                 }
-            }
-            catch (Exception ex)
+            }catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
             }
         }
-        private void stopServerButton_Click(object sender, EventArgs e)
-        {
-               
-            stopServer = true;
-            mcInputStream.WriteLine("stop");
-            stopServerFunction(e);
-            
-        }
+
 
         private void OnProcessExit(object sender, EventArgs e)
         {
             Thread.Sleep(5000);
         }
 
-        private void weatherComboBox_SelectedIndexChanged(object sender, EventArgs e) { }
 
-        private void setWeatherButton_Click(object sender, EventArgs e)
+        private void btnExecute_Click(object sender, EventArgs e)
         {
             try
             {
-                mcInputStream.WriteLine("weather " + weatherComboBox.SelectedItem);
+                if (txtInputCommand.Text == "clear")
+                {
+                    txtOutput.Clear();
+                    return;
+                }
+                else
+                {
+                    mcInputStream.WriteLine(txtInputCommand.Text);
+                }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
+            catch { }
         }
+        private void stopServerButton_Click(object sender, EventArgs e)
+        {
 
-        private void clockComboBox_SelectedIndexChanged(object sender, EventArgs e) { }
+            stopServer = true;
+            mcInputStream.WriteLine("stop");
+            stopServerFunction(e);
 
-        private void setclockButton_Click(object sender, EventArgs e)
+        }
+        private void ComboBox1_SelectedIndexChanged_1(object sender, EventArgs e) 
         {
             try
             {
-                mcInputStream.WriteLine("time set " + clockComboBox.SelectedItem);
+                txtInputCommand.Text = ComboBox1.SelectedItem.ToString();
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
+            catch { }
         }
 
         private void TCPIPButton_Click(object sender, EventArgs e)
@@ -417,7 +459,7 @@ namespace MinecraftBedrockServerAdmin
         {
             try
             {
-                mcInputStream.WriteLine("op " + opPlayerTextBox1.Text.ToString());
+                mcInputStream.WriteLine("op " + "\""+opPlayerTextBox1.Text.ToString()+"\"");
             }
             catch (Exception ex)
             {
@@ -426,20 +468,9 @@ namespace MinecraftBedrockServerAdmin
         }
         private void btnClose_Click(object sender, EventArgs eventArgs)
         {
-            System.Windows.Forms.Application.ExitThread();
+            Application.ExitThread();
         }
-        private void deOpPlayerButton_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                mcInputStream.WriteLine("deop " + deOpTextBox1.Text.ToString());
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
+        
         private void button1_Click(object sender, EventArgs e)
         {
             string trueFalse = " false";
@@ -465,6 +496,7 @@ namespace MinecraftBedrockServerAdmin
                     playerTxtOutput.Clear();
                     playerTxtOutput.Text = players;
                 }
+                //
                 //playerTxtOutput.Clear();
                 mcInputStream.WriteLine("list");
                 players = players2;
@@ -515,7 +547,11 @@ namespace MinecraftBedrockServerAdmin
                     ServerInfoOutput.AppendText(ser_prop_lines);
                 }*/
                 //ServerInfoOutput.AppendText("ports are on line " + bedrock_ports[0] + " and " + bedrock_ports[1] + "; look for : " + bedrock_ports[0] +"\n");
-                ServerInfoOutput.AppendText("\n         This server is running on ports:"+ bedrock_ports[0] + "," + bedrock_ports[1] + "       ");
+                if(IsNumeric(server_ports_list) == false)
+                {
+                    server_ports_list = bedrock_ports[0] + "," + bedrock_ports[1];
+                }
+                ServerInfoOutput.AppendText("\n         This server is running on ports:"+ server_ports_list + "       ");
                 ServerInfoOutput.AppendText("\nPROTO           LOCAL IP             REMOTE IP          STATE ");
                 using (Process process = new Process())
                 {
@@ -600,28 +636,10 @@ namespace MinecraftBedrockServerAdmin
                 btnExecute_Click(sender, e);
         }
 
-        private void weatherComboBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-                setWeatherButton_Click(sender, e);
-        }
-
-        private void clockComboBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-                setclockButton_Click(sender, e);
-        }
-
         private void opPlayerTextBox1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
                 opPlayerButton_Click(sender, e);
-        }
-
-        private void deOpTextBox1_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-                deOpPlayerButton_Click(sender, e);
         }
 
         private void gameRuleComboBox_KeyDown(object sender, KeyEventArgs e)
@@ -757,10 +775,7 @@ namespace MinecraftBedrockServerAdmin
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) { }
-        private void playerTxtOutput_TextChanged(object sender, EventArgs e) 
-        {
-            
-        }
+        private void playerTxtOutput_TextChanged(object sender, EventArgs e) { }
         private void label7_Click(object sender, EventArgs e) { }
         private void deOpTextBox1_TextChanged(object sender, EventArgs e) { }
         private void falseGRRadioButton2_CheckedChanged(object sender, EventArgs e) { }
@@ -850,5 +865,7 @@ namespace MinecraftBedrockServerAdmin
                 //proc.Kill();
             }
         }
+
+
     }
 }
