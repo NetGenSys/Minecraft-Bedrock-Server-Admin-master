@@ -131,6 +131,7 @@ namespace MinecraftBedrockServerAdmin
             }, null, timeToGo, Timeout.InfiniteTimeSpan);
         }
 
+        
         public void AddTextToOutputTextBox(string strText)
         {
             string blah = strText.Replace("\r", "");
