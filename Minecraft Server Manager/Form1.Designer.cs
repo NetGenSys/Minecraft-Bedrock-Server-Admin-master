@@ -64,6 +64,7 @@ namespace MinecraftBedrockServerAdmin {
             this.label10 = new System.Windows.Forms.Label();
             this.button4 = new System.Windows.Forms.Button();
             this.ComboBox1 = new System.Windows.Forms.ComboBox();
+            this.FileMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.SuspendLayout();
             // 
             // txtOutput
@@ -87,10 +88,10 @@ namespace MinecraftBedrockServerAdmin {
             this.ServerInfoOutput.BackColor = System.Drawing.Color.LightSkyBlue;
             this.ServerInfoOutput.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.ServerInfoOutput.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.ServerInfoOutput.Location = new System.Drawing.Point(723, 123);
+            this.ServerInfoOutput.Location = new System.Drawing.Point(701, 123);
             this.ServerInfoOutput.Margin = new System.Windows.Forms.Padding(4);
             this.ServerInfoOutput.Name = "ServerInfoOutput";
-            this.ServerInfoOutput.Size = new System.Drawing.Size(387, 158);
+            this.ServerInfoOutput.Size = new System.Drawing.Size(430, 158);
             this.ServerInfoOutput.TabIndex = 32;
             this.ServerInfoOutput.Text = "";
             this.ServerInfoOutput.TextChanged += new System.EventHandler(this.ServerInfoOutput_TextChanged);
@@ -551,16 +552,16 @@ namespace MinecraftBedrockServerAdmin {
             this.ComboBox1.Size = new System.Drawing.Size(445, 23);
             this.ComboBox1.TabIndex = 43;
             this.ComboBox1.SelectedIndexChanged += new System.EventHandler(this.ComboBox1_SelectedIndexChanged_1);
-            // Create a Menu Item
-
-            ToolStripMenuItem FileMenu = new ToolStripMenuItem("File");
-
-            FileMenu.BackColor = System.Drawing.Color.OrangeRed;
-            FileMenu.ForeColor = System.Drawing.Color.Black;
-            FileMenu.Text = "Action Menu";
-            this.ComboBox1.Font = new System.Drawing.Font("Lucida Console", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            FileMenu.TextAlign = System.Drawing.ContentAlignment.BottomRight;
-            FileMenu.ToolTipText = "Click Me";
+            // 
+            // FileMenu
+            // 
+            this.FileMenu.BackColor = System.Drawing.Color.OrangeRed;
+            this.FileMenu.ForeColor = System.Drawing.Color.Black;
+            this.FileMenu.Name = "FileMenu";
+            this.FileMenu.Size = new System.Drawing.Size(32, 19);
+            this.FileMenu.Text = "Action Menu";
+            this.FileMenu.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.FileMenu.ToolTipText = "Click Me";
             // 
             // Form1
             // 
@@ -659,5 +660,6 @@ namespace MinecraftBedrockServerAdmin {
         private Button button4;
         private RichTextBox gameRulesTxt;
         private ComboBox ComboBox1;
+        private ToolStripMenuItem FileMenu;
     }
 }
