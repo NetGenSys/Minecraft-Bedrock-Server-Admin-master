@@ -561,7 +561,8 @@ namespace MinecraftBedrockServerAdmin
                     ServerInfoOutput.AppendText("SERVER PORTS ARE NOT NUMBERS!!\r\n");//no port number
                 }
                 ServerInfoOutput.AppendText("\n    running on ports: "+ server_port + "     ");
-                ServerInfoOutput.AppendText("\n  PROTO           LOCAL IP             REMOTE IP          STATE ");
+                ServerInfoOutput.AppendText("\n    These ports are being monitored below");
+                ServerInfoOutput.AppendText("\n  PROTO           LOCAL IP             REMOTE IP          STATE \n");
                 using (Process process = new Process())
                 {
                     process.StartInfo.FileName = FileName;
