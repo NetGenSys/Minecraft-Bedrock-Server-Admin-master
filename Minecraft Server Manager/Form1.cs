@@ -188,7 +188,6 @@ namespace MinecraftBedrockServerAdmin
                 if (strText.Contains("De-opped: "))
                 {
                     string nameofuser = strText.Replace("De-opped: ", "").Replace("\r\n", "");
-                    //MessageBox.Show(nameofuser, "Removed Operator", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.txtOutput.AppendText("\r\nRemoved Op from "+nameofuser);
                     return;
                 }
