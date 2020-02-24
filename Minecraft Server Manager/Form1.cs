@@ -12,6 +12,9 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.IO.Compression;
+
+
 namespace MinecraftBedrockServerAdmin
 {
     public partial class Form1 : MetroFramework.Forms.MetroForm
@@ -25,15 +28,19 @@ namespace MinecraftBedrockServerAdmin
         public delegate void fpTextBoxCallback_t(string strText);
         public fpTextBoxCallback_t fpTextBoxCallback;
         public string output;
-        string[] server_properties = File.ReadAllLines(Directory.GetCurrentDirectory() + "\\server.properties", Encoding.UTF8);
         IsolatedStorageFile isoStore = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Domain | IsolatedStorageScope.Assembly, null, null);
         public string[] server_ports;
         public string[] server_ports_arr;
         public string FileName = "C:\\Windows\\System32\\NETSTAT.EXE";
         public string netstatargs = " -n";
         public string server_port;
-        public Form1()
+        public string[] server_properties;
+
+
+
+public Form1()
         {
+
             string startServer = ConfigurationManager.AppSettings["startServer"].ToString();
             string automaticBackups = ConfigurationManager.AppSettings["automaticBackups"].ToString();
             string date = ConfigurationManager.AppSettings["dateTime"].ToString();
@@ -260,7 +267,7 @@ namespace MinecraftBedrockServerAdmin
                         {
                             using (StreamWriter writer = new StreamWriter(isoStream))
                             {
-                                writer.WriteLine(server_port +","+ server_ports_list);
+                                writer.WriteLine(server_port +" ,"+ server_ports_list);
                                 writer.Close();
                             }
                         }
@@ -300,7 +307,7 @@ namespace MinecraftBedrockServerAdmin
             }
             catch (Exception) { }
         }
-        private void ConsoleOutputHandler(object sendingProcess, System.Diagnostics.DataReceivedEventArgs outLine)
+        private void ConsoleOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             if (!String.IsNullOrEmpty(outLine.Data))
             {
@@ -310,7 +317,7 @@ namespace MinecraftBedrockServerAdmin
                     fpTextBoxCallback(Environment.NewLine + outLine.Data);
             }
         }
-        private void ServerInfoOutputHandler(object sendingProcess, System.Diagnostics.DataReceivedEventArgs outLine)
+        private void ServerInfoOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             if (!String.IsNullOrEmpty(outLine.Data))
             {
@@ -359,17 +366,67 @@ namespace MinecraftBedrockServerAdmin
         }
         private void StartServerFunction(EventArgs e)
         {
-            //update to get from https://minecraft.azureedge.net/bin-win/bedrock-server-*.zip
-            if (!File.Exists(System.IO.Directory.GetCurrentDirectory() + "/bedrock_server.exe"))
+            if (File.Exists(Directory.GetCurrentDirectory() + "/bedrock_server.exe") == false)
             {
-                string Serverpath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "bedrock_server.exe");
-                File.WriteAllBytes(Serverpath, MinecraftBedrockServerAdmin.Properties.Resources.bedrock_server);
-                string Propertiespath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "server.properties");
-                File.WriteAllBytes(Propertiespath, MinecraftBedrockServerAdmin.Properties.Resources.server);
-                string Permissionspath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "permissions.json");
-                File.WriteAllBytes(Permissionspath, MinecraftBedrockServerAdmin.Properties.Resources.permissions);
-                string Whitelistpath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "whitelist.json");
-                File.WriteAllBytes(Whitelistpath, MinecraftBedrockServerAdmin.Properties.Resources.whitelist);
+                var confirmResult = MessageBox.Show("bedrock_server not present, would you like to download the Latest Version?", "CONFIRM", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (confirmResult == DialogResult.Yes)
+                {
+                    string version = GetMinecraftServerVersion();
+                    string uriName = "https://minecraft.azureedge.net/bin-win/bedrock-server-"+version;
+                    uriName = uriName.Replace(" ", "");
+                    string urlName = "";
+                    for (int i = 0; i <= 9; i++)
+                    {
+                        urlName = uriName+"."+i+".zip";
+
+                        if (Uri.IsWellFormedUriString(urlName, UriKind.RelativeOrAbsolute))
+                        {
+                            try
+                            {
+                                if (!string.IsNullOrEmpty(urlName))
+                                {
+                                    UriBuilder uriBuilder = new UriBuilder(urlName);
+                                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                    if (response.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        //txtOutput.Text = "Broken - 404 Not Found";
+                                    }
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        //txtOutput.Text = "URL appears to be good.";
+                                        txtOutput.Text = "Downloading from :"+ uriBuilder.Uri;
+                                        using (WebClient wc = new WebClient())
+                                        {
+                                            wc.DownloadFile(uriBuilder.Uri, Directory.GetCurrentDirectory() + "/BedRockServer.zip");
+                                        }
+                                        Thread.Sleep(1000);
+                                        ZipFile.ExtractToDirectory(Directory.GetCurrentDirectory() + "/BedRockServer.zip", Directory.GetCurrentDirectory());
+                                        Thread.Sleep(1000);
+                                    }
+                                    else //There are a lot of other status codes you could check for...
+                                    {
+                                       // txtOutput.Text = string.Format("URL might be ok. Status: {0}.",response.StatusCode.ToString());
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                               // txtOutput.Text = string.Format("Broken- Other error: {0}", ex.Message);
+                            }
+
+                        }
+                        else
+                        {
+                            MessageBox.Show("Server not found @"+urlName, "CONFIRM", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        }
+                    }
+                }
+                else if (confirmResult == DialogResult.No)
+                {
+                    return;
+                }
+
             }
             if (isoStore.FileExists("serverPorts.txt") == true)
             {
@@ -382,7 +439,7 @@ namespace MinecraftBedrockServerAdmin
                     }
                 }
             }
-            minecraftProcess = new System.Diagnostics.Process();
+            minecraftProcess = new Process();
             minecraftProcess.StartInfo.FileName = "bedrock_server.exe";
             AddTextToOutputTextBox("\n\r  Using this terminal: " + minecraftProcess.StartInfo.FileName);
             minecraftProcess.StartInfo.UseShellExecute = false;
@@ -392,8 +449,8 @@ namespace MinecraftBedrockServerAdmin
             minecraftProcess.StartInfo.RedirectStandardError = true;
             minecraftProcess.EnableRaisingEvents = false;
             minecraftProcess.Exited += new EventHandler(ProcessExited);
-            minecraftProcess.ErrorDataReceived += new System.Diagnostics.DataReceivedEventHandler(ConsoleOutputHandler);
-            minecraftProcess.OutputDataReceived += new System.Diagnostics.DataReceivedEventHandler(ConsoleOutputHandler);
+            minecraftProcess.ErrorDataReceived += new DataReceivedEventHandler(ConsoleOutputHandler);
+            minecraftProcess.OutputDataReceived += new DataReceivedEventHandler(ConsoleOutputHandler);
             minecraftProcess.Start();
             mcInputStream = minecraftProcess.StandardInput;
             minecraftProcess.BeginOutputReadLine();
@@ -551,18 +608,18 @@ namespace MinecraftBedrockServerAdmin
                         {
                             server_port = reader.ReadToEnd().Replace("\r\n", "");
                             server_port = server_port.Substring(server_port.IndexOf(',') + 1);
-                            server_port += ",80";
+                            server_port += " ,80";//added for checking.
                             server_ports_arr = server_port.Split(',');
                         }
                     }
                 }
                 else
                 {
-                    ServerInfoOutput.AppendText("SERVER PORTS ARE NOT NUMBERS!!\r\n");//no port number
+                    ServerInfoOutput.AppendText("SERVER PORTS ARE NOT NUMBERS!!\r\n");
                 }
-                ServerInfoOutput.AppendText("\n    running on ports: "+ server_port + "     ");
+                ServerInfoOutput.AppendText("    running on ports: "+ server_port + "     ");
                 ServerInfoOutput.AppendText("\n    These ports are being monitored below");
-                ServerInfoOutput.AppendText("\n  PROTO           LOCAL IP             REMOTE IP          STATE \n");
+                ServerInfoOutput.AppendText("\n   PROTO            LOCAL IP                        REMOTE IP                     STATE");
                 using (Process process = new Process())
                 {
                     process.StartInfo.FileName = FileName;
@@ -585,7 +642,7 @@ namespace MinecraftBedrockServerAdmin
                         foreach(string ptz in server_ports_arr)
                         if (word.Contains(":"+ ptz) && word.Contains("ESTABLISHED"))// on bedrock server default ports 
                         {
-                            ServerInfoOutput.AppendText("\rTCP  " + word.Replace("   ", "  ").Replace("\r\n", "").Replace("ESTABLISHED", "ESTA"));
+                            ServerInfoOutput.AppendText("\r   TCP      " + word.Replace("  ", "    ").Replace("\r\n", "").Replace("ESTABLISHED", "ESTAB"));
                         }
                     }
                     process.WaitForExit();
@@ -596,6 +653,7 @@ namespace MinecraftBedrockServerAdmin
         }
         private string getServerInfo()
         {
+
             RegistryKey processor_name = Registry.LocalMachine.OpenSubKey(@"Hardware\Description\System\CentralProcessor\0", RegistryKeyPermissionCheck.ReadSubTree); 
             if (processor_name != null)
             {
@@ -667,10 +725,10 @@ namespace MinecraftBedrockServerAdmin
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             bool backedup = false;
-            int[] sleepytimes = new int[] { 240000, 60000, 30000, 10000 };//time in ms to pause the server 4 min, 1 min, 30 sec, 10 sec.
-            while (!backedup)//while the backup is NOT complete.
+            int[] sleepytimes = new int[] { 240000, 60000, 30000, 10000 };
+            while (!backedup)
             {
-                foreach (int sleeptime in sleepytimes)//loop through the sleep times to notify the users a save is coming
+                foreach (int sleeptime in sleepytimes)
                 {
                     int Minutes = sleeptime / 60 / 1000;
                     int seconds = sleeptime / 1000;
@@ -679,24 +737,24 @@ namespace MinecraftBedrockServerAdmin
                     else if(Minutes <= 0) { time = seconds.ToString() + " seconds"; }
                     mcInputStream.WriteLine("say THE SERVER WILL BE PAUSING FOR A BACKUP IN " + time);
                     txtOutput.AppendText("\r\n\r\nTelling players the server is pausing in " + time + "\r\n");
-                    File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "Telling players the server is pausing in " + time + "\r\n");//server logs
+                    File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "Telling players the server is pausing in " + time + "\r\n");
                     txtOutput.ScrollToCaret();
                     Thread.Sleep(sleeptime);
                 }
-                mcInputStream.WriteLine("say SERVER IS PAUSED, PLEASE WAIT ROUGHLY 12 SECONDS TO SAVE.");//notify the server is pausing
+                mcInputStream.WriteLine("say SERVER IS PAUSED, PLEASE WAIT ROUGHLY 12 SECONDS TO SAVE.");
                 txtOutput.AppendText("\r\nPausing Server for world backup\r\n");
                 File.AppendAllText(@"ServerLog.csv", DateTime.Now.ToString() + " " + "Pausing Server for world backup\r\n");
-                mcInputStream.WriteLine("save hold");//pause the server
+                mcInputStream.WriteLine("save hold");
                 txtOutput.ScrollToCaret();
                 Thread.Sleep(9000);
-                mcInputStream.WriteLine("save query");//save the query ( this is a world save the save file can then be compressed later for archival purposes
+                mcInputStream.WriteLine("save query");
                 txtOutput.ScrollToCaret();
                 Thread.Sleep(1000);
-                mcInputStream.WriteLine("save resume");//resume the server
-                mcInputStream.WriteLine("say THE SERVER HAS COMPLETED THE BACKUP");//notify the users the save is complete.
+                mcInputStream.WriteLine("save resume");
+                mcInputStream.WriteLine("say THE SERVER HAS COMPLETED THE BACKUP");
                 txtOutput.AppendText("\r\n\r\nTelling players the server has completed being backed up\r\n");
                 txtOutput.ScrollToCaret();
-                backedup = true;//end the while loop
+                backedup = true;
             }
         }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -737,9 +795,22 @@ namespace MinecraftBedrockServerAdmin
                 configuration.Save(ConfigurationSaveMode.Modified);
             }
         }
+        public static string GetMinecraftServerVersion()
+        {
+            if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() == true)
+            {
+                const string Address = "http://97.107.69.83/bedrockserver/";
+                string ver = new WebClient().DownloadString(Address);
+                if (ver != null && ver != "")
+                {
+                    return ver;
+                }
+            }
+            return "";
+        }
         public static string GetLocalIPAddress()
         {
-            if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() == true)//if the server has internet access well use a web service to get the IP
+            if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() == true)
             {
                 const string Address = "http://icanhazip.com";
                 string ip = new WebClient().DownloadString(Address);
@@ -748,7 +819,7 @@ namespace MinecraftBedrockServerAdmin
                     return ip;
                 }
             }
-            else // otherwise use internal services. in most cases this returns the internal network IP. 127.0.0.1 or 192.*.*.*
+            else
             {
                 var host = Dns.GetHostEntry(Dns.GetHostName());
                 foreach (var ip in host.AddressList)
