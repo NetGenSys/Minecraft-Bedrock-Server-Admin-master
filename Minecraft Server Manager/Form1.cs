@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.IO.IsolatedStorage;
-using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -13,11 +12,9 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-
 namespace MinecraftBedrockServerAdmin
 {
     public partial class Form1 : MetroFramework.Forms.MetroForm
-
     {
         private Process minecraftProcess;
         private StreamWriter mcInputStream;
@@ -32,33 +29,26 @@ namespace MinecraftBedrockServerAdmin
         IsolatedStorageFile isoStore = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Domain | IsolatedStorageScope.Assembly, null, null);
         public string[] server_ports;
         public string[] server_ports_arr;
-
+        public string FileName = "C:\\Windows\\System32\\NETSTAT.EXE";
+        public string netstatargs = " -n";
+        public string server_port;
         public Form1()
         {
             string startServer = ConfigurationManager.AppSettings["startServer"].ToString();
             string automaticBackups = ConfigurationManager.AppSettings["automaticBackups"].ToString();
-            //string automaticRestarts = ConfigurationManager.AppSettings["automaticrestart"].ToString();
             string date = ConfigurationManager.AppSettings["dateTime"].ToString();
-            string[] userEffects = {"speed","slowness","haste","mining_fatigue","strength",
-                                    "instant_health","instant_damage","jump_boost","nausea",
-                                    "regeneration","resistance","fire_resistance","water_breathing",
-                                    "invisibility","blindness","night_vision","hunger","weakness",
-                                    "poison","wither","health_boost","absorption","saturation",
-                                    "levitation","fatal_poison","conduit_power","slow_falling",
+            string[] userEffects = {"speed","slowness","haste","mining_fatigue","strength","instant_health","instant_damage","jump_boost","nausea","regeneration","resistance","fire_resistance","water_breathing",
+                                    "invisibility","blindness","night_vision","hunger","weakness","poison","wither","health_boost","absorption","saturation","levitation","fatal_poison","conduit_power","slow_falling",
                                     "bad_omen","village_hero"};
-            ContextMenuStrip PopupMenu = new ContextMenuStrip();
-
             CheckForIllegalCrossThreadCalls = false;
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
             fpTextBoxCallback = new fpTextBoxCallback_t(AddTextToOutputTextBox);
             InitializeComponent();
-
             System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
             timer.Tick += new EventHandler(timer_Tick);
             timer.Interval = (5000) * (1);
             timer.Enabled = true;
             timer.Start();
-
             dateTimePicker1.Text = date;
             List<string> gameRuleList = new List<string>();
             gameRuleList.Add("commandblockoutput");
@@ -84,7 +74,6 @@ namespace MinecraftBedrockServerAdmin
             gameRuleList.Add("showcoordinates");
             gameRuleList.Add("showdeathmessages");
             gameRuleList.Add("tntexplodes");
-
             List<string> ServerCommandList = new List<string>();
             ServerCommandList.Add("");
             ServerCommandList.Add("ban {player}");
@@ -107,31 +96,23 @@ namespace MinecraftBedrockServerAdmin
             {
                 ServerCommandList.Add("effect @a " + effect + " 500 255 true");
             }
-
             if (startServer == "true")
             {
                 startServerCheckbox.Checked = true;
             }
-
             if (automaticBackups == "true")
             {
                 automaticBackupsCheckBox.Checked = true;
                 SetUpTimer();
             }
-
             gameRuleComboBox.DataSource = gameRuleList;
-            ComboBox1.DataSource = ServerCommandList;
-                                    
+            ComboBox1.DataSource = ServerCommandList;               
             if (startServer == "true")
             {
                 startServerButton_Click(null, EventArgs.Empty);
             }
         } 
         private int restartTryLimit = 0;
-        public string FileName = "C:\\Windows\\System32\\NETSTAT.EXE";
-        public string netstatargs = " -n";
-        public string server_port;
-
         private void SetUpTimer()
         {
             TimeSpan alertTime = dateTimePicker1.Value.TimeOfDay;
@@ -148,7 +129,6 @@ namespace MinecraftBedrockServerAdmin
         }
         static string ConvertStringArrayToString(string[] array)
         {
-            // Concatenate all the elements into a StringBuilder.
             StringBuilder builder = new StringBuilder();
             foreach (string value in array)
             {
@@ -157,7 +137,6 @@ namespace MinecraftBedrockServerAdmin
             }
             return builder.ToString();
         }
-
         public void AddTextToOutputTextBox(string strText)
         {
             string[] avoidmelist = {"NO LOG FILE!","Version","Session ID","Level Name:","Game mode","Difficulty"};
@@ -194,7 +173,6 @@ namespace MinecraftBedrockServerAdmin
                     string nameofuser = strText.Replace("Opped: ", "").Replace("\r\n", "");
                     nameofuser = "\"" + nameofuser + "\"";
                     this.txtOutput.AppendText("\r\n Opped " + nameofuser);
-
                 }
                 if (strText.Contains("Could not op (already op or higher): "))
                 {
@@ -202,14 +180,10 @@ namespace MinecraftBedrockServerAdmin
                     {
                         string nameofuser = strText.Replace("Could not op (already op or higher): ", "").Replace("\r\n","");
                         nameofuser = "\""+nameofuser+"\"";
-                       // MessageBox.Show(nameofuser, "Already OP", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         mcInputStream.WriteLine("deop "+nameofuser);
                         return;
                     }
-                    catch
-                    {
-
-                    }
+                    catch{ }
                 }
                 if (strText.Contains("De-opped: "))
                 {
@@ -243,7 +217,6 @@ namespace MinecraftBedrockServerAdmin
                     txtOutput.AppendText("\r\n No one on by that name, or No one is on.");
                     return;
                 }
-
                 if (blah.Contains("Network port occupied, can't start server."))
                 {
                     this.txtOutput.AppendText(strText);
@@ -270,7 +243,6 @@ namespace MinecraftBedrockServerAdmin
                         {
                             using (StreamWriter writer = new StreamWriter(isoStream))
                             {
-                                
                                 writer.WriteLine(server_ports_list);
                                 writer.Close();
                             }
@@ -283,7 +255,6 @@ namespace MinecraftBedrockServerAdmin
                             using (StreamReader reader = new StreamReader(isoStream))
                             {
                                 server_port = reader.ReadToEnd();
-                               
                             }
                         }
                         using (IsolatedStorageFileStream isoStream = new IsolatedStorageFileStream("serverPorts.txt", FileMode.Truncate, isoStore))
@@ -294,16 +265,13 @@ namespace MinecraftBedrockServerAdmin
                                 writer.Close();
                             }
                         }
-                        
                     }
-                    //isoStore.Remove();
                     return;
                 }
                 if (strText.Contains("players online"))
                 {
                     strText = strText.Replace("\r\n", "");
                 }
-               
                 if (blah.Contains(", xuid") || blah.Contains(", port"))
                 {
                     this.txtOutput.AppendText(strText);
@@ -333,8 +301,6 @@ namespace MinecraftBedrockServerAdmin
             }
             catch (Exception) { }
         }
-
-
         private void ConsoleOutputHandler(object sendingProcess, System.Diagnostics.DataReceivedEventArgs outLine)
         {
             if (!String.IsNullOrEmpty(outLine.Data))
@@ -355,19 +321,15 @@ namespace MinecraftBedrockServerAdmin
                     fpTextBoxCallback(Environment.NewLine + outLine.Data);
             }
         }
-
-
         public void ProcessExited(object sender, EventArgs e)
         {
             txtOutput.AppendText("\r\n\r\nThe server has been shutdown.\r\n");
             File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "The server has been shutdown.\r\n");
         }
-
         private void backupButton_Click(object sender, EventArgs e)
         {
             backgroundWorker1.RunWorkerAsync();
         }
-
         private void startServerButton_Click(object sender, EventArgs e)
         {
             Process[] pname = Process.GetProcessesByName("bedrock_server");
@@ -386,7 +348,6 @@ namespace MinecraftBedrockServerAdmin
                     }
                     Thread.Sleep(1000);
                     StartServerFunction(e);
-                    
                 }
                 else if (confirmResult == DialogResult.No)
                 {
@@ -396,7 +357,6 @@ namespace MinecraftBedrockServerAdmin
             else if(pname.Length == 0){
                 StartServerFunction(e);
             }
-
         }
         private void StartServerFunction(EventArgs e)
         {
@@ -440,11 +400,9 @@ namespace MinecraftBedrockServerAdmin
             minecraftProcess.BeginOutputReadLine();
             minecraftProcess.BeginErrorReadLine();
             mcInputStream.WriteLine("gamerule");
-
         }
         private void stopServerFunction(EventArgs e)
         {
-
             Process[] pname = Process.GetProcessesByName("bedrock_server");                   
             try
             {
@@ -473,15 +431,7 @@ namespace MinecraftBedrockServerAdmin
                 MessageBox.Show(ex.ToString());
             }
         }
-
-
-        private void OnProcessExit(object sender, EventArgs e)
-        {
-            //Thread.Sleep(5000);
-            
-        }
-
-
+        private void OnProcessExit(object sender, EventArgs e){     }
         private void btnExecute_Click(object sender, EventArgs e)
         {
             try
@@ -500,11 +450,9 @@ namespace MinecraftBedrockServerAdmin
         }
         private void stopServerButton_Click(object sender, EventArgs e)
         {
-
             stopServer = true;
             mcInputStream.WriteLine("stop");
             stopServerFunction(e);
-
         }
         private void ComboBox1_SelectedIndexChanged_1(object sender, EventArgs e) 
         {
@@ -514,7 +462,6 @@ namespace MinecraftBedrockServerAdmin
             }
             catch { }
         }
-
         private void TCPIPButton_Click(object sender, EventArgs e)
         {
             try
@@ -524,20 +471,18 @@ namespace MinecraftBedrockServerAdmin
             }
             catch { }
         }
-
         private void ServerInfoButton_Click(object sender, EventArgs e)
         {
             try
             {
                 ServerInfoOutput.Clear();
-                AddTextToOutputTextBox(getServerInfo() + "\r\n");
+                MessageBox.Show(getServerInfo(),"SERVER INFO");
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
             }
         }
-
         private void opPlayerButton_Click(object sender, EventArgs e)
         {
             try
@@ -553,7 +498,6 @@ namespace MinecraftBedrockServerAdmin
         {
             Application.ExitThread();
         }
-        
         public void show_error(string error)
         {
             MessageBox.Show(error);
@@ -572,31 +516,23 @@ namespace MinecraftBedrockServerAdmin
             }
             catch { }
         }
-
         void timer_Tick(object sender, EventArgs e)
         {
             try
             {
-
                 if (players != players2)
                 {
                     playerTxtOutput.Clear();
                     playerTxtOutput.Text = players;
                 }
-                //
-                //playerTxtOutput.Clear();
                 mcInputStream.WriteLine("list");
                 players = players2;
                 IPBox1.Clear();
                 IPBox1.AppendText(GetLocalIPAddress());
                 ServerInfoOutput.Clear();
                 ServerInfoOutput.AppendText(ShowActiveTcpConnections());
-
             }
-            catch
-            {
-
-            }
+            catch{}
         }
         private bool IsNumeric(object Expression)
         {
@@ -605,7 +541,6 @@ namespace MinecraftBedrockServerAdmin
         }
         public string ShowActiveTcpConnections()
         {
-
             string[] bedrock_ports = Array.Empty<string>();
             try
             {
@@ -615,34 +550,19 @@ namespace MinecraftBedrockServerAdmin
                     {
                         using (StreamReader reader = new StreamReader(isoStream))
                         {
-                            //string lines = reader.ReadToEnd();
                             server_port = reader.ReadToEnd().Replace("\r\n", "");
                             server_port = server_port.Substring(server_port.IndexOf(',') + 1);
                             server_port += ",80";
                             server_ports_arr = server_port.Split(',');
                         }
                     }
-                   
                 }
                 else
-                {//this is redundant, if the above doesn't return with the ports, the server is not running. leaving for a few update iterations. 
-                    if (IsNumeric(server_properties[7].Replace("server-port=", "")) == true) //pos with # and \n removed
-                    {
-                        server_port = server_properties[7].Replace("server-port=", "")+","+ server_properties[8].Replace("server-portv6=", "");//isolate the port #
-                    }
-                    else if (IsNumeric(server_properties[30].Replace("server-port=", "")) == true)//default pos
-                    {
-                        server_port = server_properties[30].Replace("server-port=", "")+","+ server_properties[34].Replace("server-portv6=", "");//isolate the port #
-                    }
-
-                    else
-                    {
-                        ServerInfoOutput.AppendText("SERVER PORTS ARE NOT NUMBERS!!\r\n");//no port number
-                    }
+                {
+                    ServerInfoOutput.AppendText("SERVER PORTS ARE NOT NUMBERS!!\r\n");//no port number
                 }
                 ServerInfoOutput.AppendText("\n    running on ports: "+ server_port + "     ");
                 ServerInfoOutput.AppendText("\n  PROTO           LOCAL IP             REMOTE IP          STATE ");
-
                 using (Process process = new Process())
                 {
                     process.StartInfo.FileName = FileName;
@@ -653,8 +573,8 @@ namespace MinecraftBedrockServerAdmin
                     process.StartInfo.RedirectStandardOutput = true;
                     process.StartInfo.RedirectStandardError = true;
                     process.EnableRaisingEvents = false;
-                    process.ErrorDataReceived += new System.Diagnostics.DataReceivedEventHandler(ServerInfoOutputHandler);
-                    process.OutputDataReceived += new System.Diagnostics.DataReceivedEventHandler(ServerInfoOutputHandler);
+                    process.ErrorDataReceived += new DataReceivedEventHandler(ServerInfoOutputHandler);
+                    process.OutputDataReceived += new DataReceivedEventHandler(ServerInfoOutputHandler);
                     process.Start();
                     StreamReader reader = process.StandardOutput;
                     string output = reader.ReadToEnd();
@@ -671,12 +591,9 @@ namespace MinecraftBedrockServerAdmin
                     process.WaitForExit();
                 }               
             }
-            catch
-            {
-            }
+            catch { }
            return output;
         }
-
         private string getServerInfo()
         {
             RegistryKey processor_name = Registry.LocalMachine.OpenSubKey(@"Hardware\Description\System\CentralProcessor\0", RegistryKeyPermissionCheck.ReadSubTree); 
@@ -722,25 +639,21 @@ namespace MinecraftBedrockServerAdmin
             if (e.KeyCode == Keys.Enter)
                 btnExecute_Click(sender, e);
         }
-
         private void opPlayerTextBox1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
                 opPlayerButton_Click(sender, e);
         }
-
         private void gameRuleComboBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
                 button1_Click(sender, e);
         }
-
         private void trueGRRadioButton_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
                 button1_Click(sender, e);
         }
-
         private void falseGRRadioButton2_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -751,7 +664,6 @@ namespace MinecraftBedrockServerAdmin
             if (e.KeyCode == Keys.Enter)
                 button1_Click(sender, e);
         }
-
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             bool backedup = false;
@@ -786,9 +698,7 @@ namespace MinecraftBedrockServerAdmin
                 txtOutput.ScrollToCaret();
                 backedup = true;//end the while loop
             }
-
         }
-
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -804,7 +714,6 @@ namespace MinecraftBedrockServerAdmin
                 configuration.Save(ConfigurationSaveMode.Modified);
             }
         }
-
         private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
         {
             SetUpTimer();
@@ -813,7 +722,6 @@ namespace MinecraftBedrockServerAdmin
             configuration.AppSettings.Settings["dateTime"].Value = dateTimePicker1.Value.TimeOfDay.ToString();
             configuration.Save(ConfigurationSaveMode.Modified);
         }
-
         private void automaticBackupsCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -835,7 +743,6 @@ namespace MinecraftBedrockServerAdmin
             {
                 const string Address = "http://icanhazip.com";
                 string ip = new WebClient().DownloadString(Address);
-
                 if (ip != null && ip != "")
                 {
                     return ip;
@@ -858,9 +765,7 @@ namespace MinecraftBedrockServerAdmin
         private void Form1_Load(object sender, EventArgs e)
         {
             IPBox1.AppendText(GetLocalIPAddress());
-            
         }
-
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) { }
         private void playerTxtOutput_TextChanged(object sender, EventArgs e) { }
         private void label7_Click(object sender, EventArgs e) { }
@@ -874,30 +779,26 @@ namespace MinecraftBedrockServerAdmin
         private void gameRuleComboBox_SelectedIndexChanged(object sender, EventArgs e) { }
         private void opPlayerTextBox1_TextChanged(object sender, EventArgs e) { }
         private void label8_Click(object sender, EventArgs e) { }
-      
         private void button2_Click(object sender, EventArgs e)
         {
-            System.Windows.Forms.Application.ExitThread();
+            Application.ExitThread();
         }
         private void button3_Click(object sender, EventArgs e)
         {
-            this.WindowState = FormWindowState.Minimized;
+            WindowState = FormWindowState.Minimized;
         }
         private void IPBox1_Click(Object sender, EventArgs e)
         {
             string text = IPBox1.Text;
             Clipboard.SetText(text);
         }
-        private void IPBox1_TextChanged(object sender, EventArgs e)
-        {
-        }
+        private void IPBox1_TextChanged(object sender, EventArgs e){  }
         private void UWP_Click_1(object sender, EventArgs e)
         {
             try
             {
                 using (Process p = new Process())
                 {
-
                     ProcessStartInfo ps = new ProcessStartInfo();
                     ps.Arguments = "LoopbackExempt –a –p=S-1-15-2-1958404141-86561845-1752920682-3514627264-368642714-62675701-733520436";
                     ps.FileName = "CheckNetIsolation.exe";
@@ -912,15 +813,9 @@ namespace MinecraftBedrockServerAdmin
                     StreamReader stdError = p.StandardError;
                 }
             }
-            catch
-            {
-
-            }
+            catch { }
         }
-
-        private void label10_Click(object sender, EventArgs e)
-        {
-        }
+        private void label10_Click(object sender, EventArgs e){}
         private void Button4_Click(object sender, EventArgs e)
         {
             string browser = string.Empty;
@@ -948,11 +843,7 @@ namespace MinecraftBedrockServerAdmin
             if (proc != null)
             {
                 Thread.Sleep(5000);
-                // Close the browser.
-                //proc.Kill();
             }
         }
-
-
     }
 }
