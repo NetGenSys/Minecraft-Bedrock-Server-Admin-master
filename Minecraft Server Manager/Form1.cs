@@ -13,10 +13,6 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.IO.Compression;
-using System.Runtime.InteropServices;
-using System.Net.NetworkInformation;
-using System.Collections;
-using Microsoft.VisualBasic;
 
 namespace MinecraftBedrockServerAdmin
 {
@@ -28,6 +24,7 @@ namespace MinecraftBedrockServerAdmin
         private string players2 = "";
         private bool stopServer = false;
         private System.Threading.Timer timer;
+        private System.Threading.Timer tcptimer;
         public delegate void fpTextBoxCallback_t(string strText);
         public fpTextBoxCallback_t fpTextBoxCallback;
         public string output;
@@ -35,9 +32,10 @@ namespace MinecraftBedrockServerAdmin
         public string[] server_ports;
         public string[] server_ports_arr;
         public string FileName = "C:\\Windows\\System32\\NETSTAT.EXE";
-        public string netstatargs = " -n -o";
+        public string netstatargs = "-a -n -o";
         public string server_port;
         public string[] server_properties;
+        public string formatted_info;
 
 
 
@@ -47,6 +45,7 @@ public Form1()
             string startServer = ConfigurationManager.AppSettings["startServer"].ToString();
             string automaticBackups = ConfigurationManager.AppSettings["automaticBackups"].ToString();
             string date = ConfigurationManager.AppSettings["dateTime"].ToString();
+            string checkconfigport = ConfigurationManager.AppSettings["checkconfigport"].ToString();
             string[] userEffects = {"speed","slowness","haste","mining_fatigue","strength","instant_health","instant_damage","jump_boost","nausea","regeneration","resistance","fire_resistance","water_breathing",
                                     "invisibility","blindness","night_vision","hunger","weakness","poison","wither","health_boost","absorption","saturation","levitation","fatal_poison","conduit_power","slow_falling",
                                     "bad_omen","village_hero"};
@@ -54,11 +53,19 @@ public Form1()
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
             fpTextBoxCallback = new fpTextBoxCallback_t(AddTextToOutputTextBox);
             InitializeComponent();
+
             System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
             timer.Tick += new EventHandler(timer_Tick);
-            timer.Interval = (5000) * (1);
+            timer.Interval = (2000) * (1);
             timer.Enabled = true;
             timer.Start();
+
+            System.Windows.Forms.Timer tcptimer = new System.Windows.Forms.Timer();
+            tcptimer.Tick += new EventHandler(Tcptimer_Tick);
+            tcptimer.Interval = (10000) * (1);
+            tcptimer.Enabled = true;
+            tcptimer.Start();
+
             dateTimePicker1.Text = date;
             List<string> gameRuleList = new List<string>();
             gameRuleList.Add("commandblockoutput");
@@ -121,7 +128,11 @@ public Form1()
             {
                 startServerButton_Click(null, EventArgs.Empty);
             }
-        } 
+            if(checkconfigport == "true")
+            {
+                checkconfigportCheckBox.Checked = true;
+            }
+        }
         private int restartTryLimit = 0;
         private void SetUpTimer()
         {
@@ -595,10 +606,17 @@ public Form1()
                 players = players2;
                 IPBox1.Clear();
                 IPBox1.AppendText(GetLocalIPAddress());
+            }
+            catch{}
+        }
+        void Tcptimer_Tick(object sender, EventArgs e)
+        {
+            try
+            {
                 ServerInfoOutput.Clear();
                 ServerInfoOutput.AppendText(ShowActiveTcpConnections());
             }
-            catch{}
+            catch { }
         }
         public int? ConvertStringToInt(string intString)
         {
@@ -632,7 +650,10 @@ public Form1()
                         {
                             server_port = reader.ReadToEnd().Replace("\r\n", "");
                             server_port = server_port.Substring(server_port.IndexOf(',') + 1);
-                            server_port += " ,80";//added for checking.
+                            if (checkconfigportCheckBox.Checked)
+                            {
+                                server_port += " ,80 ,443";//added for checking.
+                            }
                             server_ports_arr = server_port.Split(',');
                         }
                     }
@@ -643,7 +664,7 @@ public Form1()
                 }
                 ServerInfoOutput.AppendText("    running on ports: "+ server_port + "     ");
                 ServerInfoOutput.AppendText("\n    These ports are being monitored below");
-                ServerInfoOutput.AppendText("\n   PROTO            LOCAL IP                        REMOTE IP                     STATE         PID");
+                ServerInfoOutput.AppendText("\n   PROTO            LOCAL IP                        REMOTE IP                     STATE         PID\n");
                 using (Process process = new Process())
                 {
                     process.StartInfo.FileName = FileName;
@@ -659,27 +680,32 @@ public Form1()
                     process.Start();
                     StreamReader reader = process.StandardOutput;
                     string output = reader.ReadToEnd();
-                    string[] stringSeparators = new string[] { "TCP","UDP" };
-                    var words = output.Split(stringSeparators, StringSplitOptions.None);
-                    foreach (var word in words)
+                    String[] stringSeparators = { "TCP","UDP" };
+                    var words = output.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string word in words)
                     {
                         foreach(string ptz in server_ports_arr)
                         if (word.Contains(":"+ ptz) && word.Contains("ESTABLISHED"))// on bedrock server default ports 
                         {
-                                string PIDE = Strings.Right(word, 13);
-                                string PID = PIDE.Replace(" ", "");
+                                ToolTip tooltip = new ToolTip();
+                                tooltip.ShowAlways = true;
+                                
+                                string PID = word.Substring(65, word.Length - (word.Length-5));
+                                PID = PID.Replace(" ", "");
+                                string Localcon = word.Substring(4, word.Length - 53);
+                                string Remotecon = word.Substring(27, word.Length - 57);
+                                string conState = word.Substring(50, word.Length - 61).Replace("ESTABLISHED","ESTAB");
                                 string procName = LookupProcess(PID);
-                                if( procName.Contains("Minecraft Bedrock Server Admin") ){
+                                procName = PID + "("+procName+")";
+                                formatted_info = PID+"\n\n"+word.Length.ToString();
+                                if(procName == "Minecraft Bedrock Server Admin")
+                                {
                                     procName = "MBSA";
                                 }
-                                //if( procName.Contains("Minecraft.Windows") ){
-                                   // procName = "     Minecraft";
-                                //}
-                                procName = "     " + procName;
-                               // MessageBox.Show(procName,"");
-                            ServerInfoOutput.AppendText("\r TCP      " + word.Replace(PIDE, procName).Replace("  ", "    ").Replace("\r\n", "").Replace("ESTABLISHED", "ESTAB"));
+                                ServerInfoOutput.AppendText("\rTCP         "+ Localcon +"           "+ Remotecon +"            "+ conState +"           "+ procName +" ");
                         }
                     }
+                   //MessageBox.Show(formatted_info, "");
                     process.WaitForExit();
                 }               
             }
@@ -830,6 +856,21 @@ public Form1()
                 configuration.Save(ConfigurationSaveMode.Modified);
             }
         }
+        private void checkconfigportCheckBox_CheckChanged(object sender, EventArgs e)
+        {
+            Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            configuration.Save(ConfigurationSaveMode.Modified);
+            if (checkconfigportCheckBox.Checked)
+            {
+                configuration.AppSettings.Settings["checkconfigport"].Value = "true";
+                configuration.Save(ConfigurationSaveMode.Modified);
+            }
+            if (!checkconfigportCheckBox.Checked)
+            {
+                configuration.AppSettings.Settings["checkconfigport"].Value = "false";
+                configuration.Save(ConfigurationSaveMode.Modified);
+            }
+        }
         public static string GetMinecraftServerVersion()
         {
             if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() == true)
@@ -951,5 +992,7 @@ public Form1()
                 Thread.Sleep(5000);
             }
         }
+
+
     }
 }
