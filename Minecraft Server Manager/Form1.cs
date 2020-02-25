@@ -13,7 +13,10 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.IO.Compression;
-
+using System.Runtime.InteropServices;
+using System.Net.NetworkInformation;
+using System.Collections;
+using Microsoft.VisualBasic;
 
 namespace MinecraftBedrockServerAdmin
 {
@@ -32,7 +35,7 @@ namespace MinecraftBedrockServerAdmin
         public string[] server_ports;
         public string[] server_ports_arr;
         public string FileName = "C:\\Windows\\System32\\NETSTAT.EXE";
-        public string netstatargs = " -n";
+        public string netstatargs = " -n -o";
         public string server_port;
         public string[] server_properties;
 
@@ -398,11 +401,10 @@ public Form1()
                                         txtOutput.Text = "Downloading from :"+ uriBuilder.Uri;
                                         using (WebClient wc = new WebClient())
                                         {
-                                            wc.DownloadFile(uriBuilder.Uri, Directory.GetCurrentDirectory() + "/BedRockServer.zip");
+                                            version = version.Replace(" ","");
+                                            wc.DownloadFile(uriBuilder.Uri, Directory.GetCurrentDirectory() + "/BedRockServer-" + version + "." + i + ".zip");
                                         }
-                                        Thread.Sleep(1000);
-                                        ZipFile.ExtractToDirectory(Directory.GetCurrentDirectory() + "/BedRockServer.zip", Directory.GetCurrentDirectory());
-                                        Thread.Sleep(1000);
+                                        ZipFile.ExtractToDirectory(Directory.GetCurrentDirectory() + "/BedRockServer-" + version + "." + i + ".zip", Directory.GetCurrentDirectory());
                                     }
                                     else //There are a lot of other status codes you could check for...
                                     {
@@ -590,11 +592,25 @@ public Form1()
             }
             catch{}
         }
+        public int? ConvertStringToInt(string intString)
+        {
+            int i = 0;
+            return (Int32.TryParse(intString, out i) ? i : (int?)null);
+        }
         private bool IsNumeric(object Expression)
         {
             bool isNum = Double.TryParse(Convert.ToString(Expression), System.Globalization.NumberStyles.Any, System.Globalization.NumberFormatInfo.InvariantInfo, out _);
             return isNum;
         }
+        public string LookupProcess(string pid)
+        {
+            string procName;
+            int procID = Int32.Parse(pid);
+            try { procName = Process.GetProcessById(procID).ProcessName; }
+            catch (Exception) { procName = "-"; }
+            return procName;
+        }
+
         public string ShowActiveTcpConnections()
         {
             string[] bedrock_ports = Array.Empty<string>();
@@ -619,7 +635,7 @@ public Form1()
                 }
                 ServerInfoOutput.AppendText("    running on ports: "+ server_port + "     ");
                 ServerInfoOutput.AppendText("\n    These ports are being monitored below");
-                ServerInfoOutput.AppendText("\n   PROTO            LOCAL IP                        REMOTE IP                     STATE");
+                ServerInfoOutput.AppendText("\n   PROTO            LOCAL IP                        REMOTE IP                     STATE         PID");
                 using (Process process = new Process())
                 {
                     process.StartInfo.FileName = FileName;
@@ -642,7 +658,14 @@ public Form1()
                         foreach(string ptz in server_ports_arr)
                         if (word.Contains(":"+ ptz) && word.Contains("ESTABLISHED"))// on bedrock server default ports 
                         {
-                            ServerInfoOutput.AppendText("\r   TCP      " + word.Replace("  ", "    ").Replace("\r\n", "").Replace("ESTABLISHED", "ESTAB"));
+                                string PIDE = Strings.Right(word, 13);
+                                string PID = PIDE.Replace(" ", "");
+                                string procName = "     "+LookupProcess(PID);
+                                if( procName.Contains("Minecraft Bedrock Server Admin") ){
+                                    procName = "     MBSA";
+                                }
+                               // MessageBox.Show(procName,"");
+                            ServerInfoOutput.AppendText("\r   TCP      " + word.Replace(PIDE, procName).Replace("  ", "    ").Replace("\r\n", "").Replace("ESTABLISHED", "ESTAB"));
                         }
                     }
                     process.WaitForExit();
