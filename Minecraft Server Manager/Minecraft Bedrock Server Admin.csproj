@@ -149,7 +149,6 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Class1.cs" />
     <None Include="..\.editorconfig">
       <Link>.editorconfig</Link>
     </None>
@@ -168,9 +167,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="Resources\permissions.json" />
-    <None Include="Resources\server.properties" />
-    <None Include="Resources\whitelist.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -197,16 +193,10 @@
     <None Include="Resources\af1a442f9a25a27837f17805b1c0cfa4d1725f90_1__tyz_icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Properties\Resources\bedrock_server.exe" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Icon1.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\minecraft_windows10_tile_g6c_icon.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\bedrock_server.exe" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
