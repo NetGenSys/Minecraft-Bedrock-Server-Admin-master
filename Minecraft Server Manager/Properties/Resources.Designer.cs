@@ -71,52 +71,12 @@ namespace MinecraftBedrockServerAdmin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] bedrock_server {
-            get {
-                object obj = ResourceManager.GetObject("bedrock_server", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon minecraft_windows10_tile_g6c_icon {
             get {
                 object obj = ResourceManager.GetObject("minecraft_windows10_tile_g6c_icon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] permissions {
-            get {
-                object obj = ResourceManager.GetObject("permissions", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] server {
-            get {
-                object obj = ResourceManager.GetObject("server", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] whitelist {
-            get {
-                object obj = ResourceManager.GetObject("whitelist", resourceCulture);
-                return ((byte[])(obj));
             }
         }
     }
