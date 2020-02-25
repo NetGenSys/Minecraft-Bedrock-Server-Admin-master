@@ -532,7 +532,7 @@ public Form1()
             try
             {
                 ServerInfoOutput.Clear();
-                MessageBox.Show(getServerInfo(),"SERVER INFO");
+                ServerInfoOutput.AppendText(getServerInfo());
             }
             catch (Exception ex)
             {
