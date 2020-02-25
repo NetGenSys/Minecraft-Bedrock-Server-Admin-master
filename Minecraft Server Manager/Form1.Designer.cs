@@ -36,7 +36,6 @@ namespace MinecraftBedrockServerAdmin {
             this.stopServerButton = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
             this.opPlayerButton = new System.Windows.Forms.Button();
             this.opPlayerTextBox1 = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
@@ -65,6 +64,7 @@ namespace MinecraftBedrockServerAdmin {
             this.button4 = new System.Windows.Forms.Button();
             this.ComboBox1 = new System.Windows.Forms.ComboBox();
             this.FileMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.checkconfigportCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // txtOutput
@@ -74,7 +74,7 @@ namespace MinecraftBedrockServerAdmin {
             this.txtOutput.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtOutput.Font = new System.Drawing.Font("Mongolian Baiti", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtOutput.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.txtOutput.Location = new System.Drawing.Point(31, 319);
+            this.txtOutput.Location = new System.Drawing.Point(38, 338);
             this.txtOutput.Margin = new System.Windows.Forms.Padding(4);
             this.txtOutput.Name = "txtOutput";
             this.txtOutput.Size = new System.Drawing.Size(779, 358);
@@ -88,10 +88,10 @@ namespace MinecraftBedrockServerAdmin {
             this.ServerInfoOutput.BackColor = System.Drawing.Color.LightSkyBlue;
             this.ServerInfoOutput.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.ServerInfoOutput.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.ServerInfoOutput.Location = new System.Drawing.Point(677, 123);
+            this.ServerInfoOutput.Location = new System.Drawing.Point(677, 92);
             this.ServerInfoOutput.Margin = new System.Windows.Forms.Padding(4);
             this.ServerInfoOutput.Name = "ServerInfoOutput";
-            this.ServerInfoOutput.Size = new System.Drawing.Size(509, 158);
+            this.ServerInfoOutput.Size = new System.Drawing.Size(611, 201);
             this.ServerInfoOutput.TabIndex = 32;
             this.ServerInfoOutput.Text = "";
             this.ServerInfoOutput.TextChanged += new System.EventHandler(this.ServerInfoOutput_TextChanged);
@@ -101,7 +101,7 @@ namespace MinecraftBedrockServerAdmin {
             this.btnExecute.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnExecute.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnExecute.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.btnExecute.Location = new System.Drawing.Point(1194, 702);
+            this.btnExecute.Location = new System.Drawing.Point(1194, 721);
             this.btnExecute.Margin = new System.Windows.Forms.Padding(4);
             this.btnExecute.Name = "btnExecute";
             this.btnExecute.Size = new System.Drawing.Size(119, 38);
@@ -116,7 +116,7 @@ namespace MinecraftBedrockServerAdmin {
             this.backupButton.BackColor = System.Drawing.Color.LightSkyBlue;
             this.backupButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.backupButton.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.backupButton.Location = new System.Drawing.Point(1200, 44);
+            this.backupButton.Location = new System.Drawing.Point(1322, 72);
             this.backupButton.Margin = new System.Windows.Forms.Padding(4);
             this.backupButton.Name = "backupButton";
             this.backupButton.Size = new System.Drawing.Size(204, 52);
@@ -131,7 +131,7 @@ namespace MinecraftBedrockServerAdmin {
             this.startServerButton.BackColor = System.Drawing.Color.ForestGreen;
             this.startServerButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.startServerButton.ForeColor = System.Drawing.Color.Lime;
-            this.startServerButton.Location = new System.Drawing.Point(24, 67);
+            this.startServerButton.Location = new System.Drawing.Point(40, 88);
             this.startServerButton.Margin = new System.Windows.Forms.Padding(4);
             this.startServerButton.Name = "startServerButton";
             this.startServerButton.Size = new System.Drawing.Size(204, 70);
@@ -146,7 +146,7 @@ namespace MinecraftBedrockServerAdmin {
             this.stopServerButton.BackColor = System.Drawing.Color.DarkRed;
             this.stopServerButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.stopServerButton.ForeColor = System.Drawing.Color.Red;
-            this.stopServerButton.Location = new System.Drawing.Point(26, 191);
+            this.stopServerButton.Location = new System.Drawing.Point(38, 193);
             this.stopServerButton.Margin = new System.Windows.Forms.Padding(4);
             this.stopServerButton.Name = "stopServerButton";
             this.stopServerButton.Size = new System.Drawing.Size(204, 68);
@@ -162,7 +162,7 @@ namespace MinecraftBedrockServerAdmin {
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.label2.Location = new System.Drawing.Point(20, 285);
+            this.label2.Location = new System.Drawing.Point(34, 310);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(126, 24);
@@ -176,30 +176,18 @@ namespace MinecraftBedrockServerAdmin {
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.label3.Location = new System.Drawing.Point(31, 728);
+            this.label3.Location = new System.Drawing.Point(31, 747);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(117, 18);
             this.label3.TabIndex = 9;
             this.label3.Text = "Enter Command";
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.label4.Location = new System.Drawing.Point(453, 87);
-            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(139, 20);
-            this.label4.TabIndex = 10;
-            this.label4.Text = "Admin Commands";
-            // 
             // opPlayerButton
             // 
             this.opPlayerButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.opPlayerButton.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.opPlayerButton.Location = new System.Drawing.Point(260, 122);
+            this.opPlayerButton.Location = new System.Drawing.Point(284, 123);
             this.opPlayerButton.Margin = new System.Windows.Forms.Padding(4);
             this.opPlayerButton.Name = "opPlayerButton";
             this.opPlayerButton.Size = new System.Drawing.Size(116, 33);
@@ -213,10 +201,10 @@ namespace MinecraftBedrockServerAdmin {
             this.opPlayerTextBox1.BackColor = System.Drawing.Color.DeepSkyBlue;
             this.opPlayerTextBox1.Font = new System.Drawing.Font("Lucida Console", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.opPlayerTextBox1.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.opPlayerTextBox1.Location = new System.Drawing.Point(380, 129);
+            this.opPlayerTextBox1.Location = new System.Drawing.Point(413, 129);
             this.opPlayerTextBox1.Margin = new System.Windows.Forms.Padding(4);
             this.opPlayerTextBox1.Name = "opPlayerTextBox1";
-            this.opPlayerTextBox1.Size = new System.Drawing.Size(289, 22);
+            this.opPlayerTextBox1.Size = new System.Drawing.Size(256, 22);
             this.opPlayerTextBox1.TabIndex = 14;
             this.yourToolTip.SetToolTip(this.opPlayerTextBox1, "the name of the player.");
             this.opPlayerTextBox1.TextChanged += new System.EventHandler(this.opPlayerTextBox1_TextChanged);
@@ -226,7 +214,7 @@ namespace MinecraftBedrockServerAdmin {
             // 
             this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button1.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.button1.Location = new System.Drawing.Point(260, 213);
+            this.button1.Location = new System.Drawing.Point(284, 212);
             this.button1.Margin = new System.Windows.Forms.Padding(4);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(116, 33);
@@ -241,10 +229,10 @@ namespace MinecraftBedrockServerAdmin {
             this.gameRuleComboBox.Font = new System.Drawing.Font("Lucida Console", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gameRuleComboBox.ForeColor = System.Drawing.SystemColors.HotTrack;
             this.gameRuleComboBox.FormattingEnabled = true;
-            this.gameRuleComboBox.Location = new System.Drawing.Point(380, 223);
+            this.gameRuleComboBox.Location = new System.Drawing.Point(408, 219);
             this.gameRuleComboBox.Margin = new System.Windows.Forms.Padding(4);
             this.gameRuleComboBox.Name = "gameRuleComboBox";
-            this.gameRuleComboBox.Size = new System.Drawing.Size(289, 23);
+            this.gameRuleComboBox.Size = new System.Drawing.Size(256, 23);
             this.gameRuleComboBox.TabIndex = 18;
             this.gameRuleComboBox.SelectedIndexChanged += new System.EventHandler(this.gameRuleComboBox_SelectedIndexChanged);
             this.gameRuleComboBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.gameRuleComboBox_KeyDown);
@@ -288,7 +276,7 @@ namespace MinecraftBedrockServerAdmin {
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.label5.Location = new System.Drawing.Point(1229, 291);
+            this.label5.Location = new System.Drawing.Point(1300, 310);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(137, 24);
@@ -301,11 +289,11 @@ namespace MinecraftBedrockServerAdmin {
             this.playerTxtOutput.BackColor = System.Drawing.Color.LightSkyBlue;
             this.playerTxtOutput.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.playerTxtOutput.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.playerTxtOutput.Location = new System.Drawing.Point(1143, 318);
+            this.playerTxtOutput.Location = new System.Drawing.Point(1209, 338);
             this.playerTxtOutput.Margin = new System.Windows.Forms.Padding(4);
             this.playerTxtOutput.Multiline = true;
             this.playerTxtOutput.Name = "playerTxtOutput";
-            this.playerTxtOutput.Size = new System.Drawing.Size(263, 358);
+            this.playerTxtOutput.Size = new System.Drawing.Size(304, 358);
             this.playerTxtOutput.TabIndex = 22;
             this.playerTxtOutput.TextChanged += new System.EventHandler(this.playerTxtOutput_TextChanged);
             // 
@@ -313,7 +301,7 @@ namespace MinecraftBedrockServerAdmin {
             // 
             this.txtInputCommand.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.txtInputCommand.BackColor = System.Drawing.Color.LightSkyBlue;
-            this.txtInputCommand.Location = new System.Drawing.Point(174, 728);
+            this.txtInputCommand.Location = new System.Drawing.Point(174, 747);
             this.txtInputCommand.Margin = new System.Windows.Forms.Padding(4);
             this.txtInputCommand.Name = "txtInputCommand";
             this.txtInputCommand.Size = new System.Drawing.Size(1012, 22);
@@ -330,7 +318,7 @@ namespace MinecraftBedrockServerAdmin {
             this.startServerCheckbox.AutoSize = true;
             this.startServerCheckbox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.startServerCheckbox.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.startServerCheckbox.Location = new System.Drawing.Point(24, 151);
+            this.startServerCheckbox.Location = new System.Drawing.Point(38, 161);
             this.startServerCheckbox.Margin = new System.Windows.Forms.Padding(4);
             this.startServerCheckbox.Name = "startServerCheckbox";
             this.startServerCheckbox.Size = new System.Drawing.Size(206, 24);
@@ -346,7 +334,7 @@ namespace MinecraftBedrockServerAdmin {
             this.gameRulesTxt.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.gameRulesTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gameRulesTxt.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.gameRulesTxt.Location = new System.Drawing.Point(821, 319);
+            this.gameRulesTxt.Location = new System.Drawing.Point(856, 338);
             this.gameRulesTxt.Margin = new System.Windows.Forms.Padding(4);
             this.gameRulesTxt.Name = "gameRulesTxt";
             this.gameRulesTxt.Size = new System.Drawing.Size(314, 358);
@@ -358,7 +346,7 @@ namespace MinecraftBedrockServerAdmin {
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.label6.Location = new System.Drawing.Point(873, 291);
+            this.label6.Location = new System.Drawing.Point(934, 310);
             this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(181, 24);
@@ -372,7 +360,7 @@ namespace MinecraftBedrockServerAdmin {
             this.dateTimePicker1.CalendarForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.dateTimePicker1.CalendarTitleForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.dateTimePicker1.Format = System.Windows.Forms.DateTimePickerFormat.Time;
-            this.dateTimePicker1.Location = new System.Drawing.Point(1200, 150);
+            this.dateTimePicker1.Location = new System.Drawing.Point(1319, 184);
             this.dateTimePicker1.Margin = new System.Windows.Forms.Padding(4);
             this.dateTimePicker1.Name = "dateTimePicker1";
             this.dateTimePicker1.ShowUpDown = true;
@@ -386,7 +374,7 @@ namespace MinecraftBedrockServerAdmin {
             this.automaticBackupsCheckBox.AutoSize = true;
             this.automaticBackupsCheckBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.automaticBackupsCheckBox.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.automaticBackupsCheckBox.Location = new System.Drawing.Point(1200, 98);
+            this.automaticBackupsCheckBox.Location = new System.Drawing.Point(1322, 134);
             this.automaticBackupsCheckBox.Margin = new System.Windows.Forms.Padding(4);
             this.automaticBackupsCheckBox.Name = "automaticBackupsCheckBox";
             this.automaticBackupsCheckBox.Size = new System.Drawing.Size(153, 22);
@@ -400,7 +388,7 @@ namespace MinecraftBedrockServerAdmin {
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label7.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.label7.Location = new System.Drawing.Point(1200, 124);
+            this.label7.Location = new System.Drawing.Point(1340, 160);
             this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(97, 20);
@@ -412,7 +400,7 @@ namespace MinecraftBedrockServerAdmin {
             // 
             this.TCPIPButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.TCPIPButton.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.TCPIPButton.Location = new System.Drawing.Point(701, 87);
+            this.TCPIPButton.Location = new System.Drawing.Point(701, 51);
             this.TCPIPButton.Margin = new System.Windows.Forms.Padding(4);
             this.TCPIPButton.Name = "TCPIPButton";
             this.TCPIPButton.Size = new System.Drawing.Size(100, 33);
@@ -425,7 +413,7 @@ namespace MinecraftBedrockServerAdmin {
             // 
             this.ServerInfoButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ServerInfoButton.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.ServerInfoButton.Location = new System.Drawing.Point(821, 87);
+            this.ServerInfoButton.Location = new System.Drawing.Point(821, 51);
             this.ServerInfoButton.Margin = new System.Windows.Forms.Padding(4);
             this.ServerInfoButton.Name = "ServerInfoButton";
             this.ServerInfoButton.Size = new System.Drawing.Size(100, 33);
@@ -441,7 +429,7 @@ namespace MinecraftBedrockServerAdmin {
             this.IPBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.IPBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.IPBox1.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.IPBox1.Location = new System.Drawing.Point(999, 90);
+            this.IPBox1.Location = new System.Drawing.Point(1060, 57);
             this.IPBox1.Margin = new System.Windows.Forms.Padding(4);
             this.IPBox1.MaxLength = 16;
             this.IPBox1.Multiline = false;
@@ -460,7 +448,7 @@ namespace MinecraftBedrockServerAdmin {
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label9.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.label9.Location = new System.Drawing.Point(1028, 67);
+            this.label9.Location = new System.Drawing.Point(934, 57);
             this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(118, 20);
@@ -473,7 +461,7 @@ namespace MinecraftBedrockServerAdmin {
             this.UWP.BackColor = System.Drawing.Color.LightSkyBlue;
             this.UWP.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.UWP.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.UWP.Location = new System.Drawing.Point(1200, 188);
+            this.UWP.Location = new System.Drawing.Point(1322, 229);
             this.UWP.Margin = new System.Windows.Forms.Padding(4);
             this.UWP.Name = "UWP";
             this.UWP.Size = new System.Drawing.Size(204, 52);
@@ -491,7 +479,7 @@ namespace MinecraftBedrockServerAdmin {
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(1385, 5);
+            this.button2.Location = new System.Drawing.Point(1507, 12);
             this.button2.Margin = new System.Windows.Forms.Padding(4);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(36, 25);
@@ -502,7 +490,7 @@ namespace MinecraftBedrockServerAdmin {
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(1335, 5);
+            this.button3.Location = new System.Drawing.Point(1463, 12);
             this.button3.Margin = new System.Windows.Forms.Padding(4);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(36, 25);
@@ -531,7 +519,7 @@ namespace MinecraftBedrockServerAdmin {
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button4.Image = global::MinecraftBedrockServerAdmin.Properties.Resources.af1a442f9a25a27837f17805b1c0cfa4d1725f90_1__tyz_icon;
-            this.button4.Location = new System.Drawing.Point(1359, 702);
+            this.button4.Location = new System.Drawing.Point(1466, 721);
             this.button4.Margin = new System.Windows.Forms.Padding(4);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(47, 48);
@@ -546,7 +534,7 @@ namespace MinecraftBedrockServerAdmin {
             this.ComboBox1.Font = new System.Drawing.Font("Lucida Console", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ComboBox1.ForeColor = System.Drawing.SystemColors.HotTrack;
             this.ComboBox1.FormattingEnabled = true;
-            this.ComboBox1.Location = new System.Drawing.Point(741, 697);
+            this.ComboBox1.Location = new System.Drawing.Point(741, 716);
             this.ComboBox1.Margin = new System.Windows.Forms.Padding(4);
             this.ComboBox1.Name = "ComboBox1";
             this.ComboBox1.Size = new System.Drawing.Size(445, 23);
@@ -563,12 +551,27 @@ namespace MinecraftBedrockServerAdmin {
             this.FileMenu.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             this.FileMenu.ToolTipText = "Click Me";
             // 
+            // checkconfigportCheckBox
+            // 
+            this.checkconfigportCheckBox.AutoSize = true;
+            this.checkconfigportCheckBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkconfigportCheckBox.ForeColor = System.Drawing.SystemColors.HotTrack;
+            this.checkconfigportCheckBox.Location = new System.Drawing.Point(680, 301);
+            this.checkconfigportCheckBox.Margin = new System.Windows.Forms.Padding(4);
+            this.checkconfigportCheckBox.Name = "checkconfigportCheckBox";
+            this.checkconfigportCheckBox.Size = new System.Drawing.Size(137, 22);
+            this.checkconfigportCheckBox.TabIndex = 44;
+            this.checkconfigportCheckBox.Text = "ports 80 and 443";
+            this.checkconfigportCheckBox.UseVisualStyleBackColor = true;
+            this.checkconfigportCheckBox.CheckedChanged += new System.EventHandler(this.checkconfigportCheckBox_CheckChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1438, 764);
+            this.ClientSize = new System.Drawing.Size(1554, 783);
             this.ControlBox = false;
+            this.Controls.Add(this.checkconfigportCheckBox);
             this.Controls.Add(this.ComboBox1);
             this.Controls.Add(this.startServerButton);
             this.Controls.Add(this.stopServerButton);
@@ -596,7 +599,6 @@ namespace MinecraftBedrockServerAdmin {
             this.Controls.Add(this.button1);
             this.Controls.Add(this.opPlayerTextBox1);
             this.Controls.Add(this.opPlayerButton);
-            this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.backupButton);
@@ -631,7 +633,6 @@ namespace MinecraftBedrockServerAdmin {
   private System.Windows.Forms.Button stopServerButton;
   private System.Windows.Forms.Label label2;
   private System.Windows.Forms.Label label3;
-  private System.Windows.Forms.Label label4;
 
   private System.Windows.Forms.Button opPlayerButton;
   private System.Windows.Forms.TextBox opPlayerTextBox1;
@@ -661,5 +662,6 @@ namespace MinecraftBedrockServerAdmin {
         private RichTextBox gameRulesTxt;
         private ComboBox ComboBox1;
         private ToolStripMenuItem FileMenu;
+        private CheckBox checkconfigportCheckBox;
     }
 }
