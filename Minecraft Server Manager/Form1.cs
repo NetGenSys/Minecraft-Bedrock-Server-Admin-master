@@ -332,8 +332,7 @@ public Form1()
         }
         public void ProcessExited(object sender, EventArgs e)
         {
-            txtOutput.AppendText("\r\n\r\nThe server has been shutdown.\r\n");
-            File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "The server has been shutdown.\r\n");
+            
         }
         private void backupButton_Click(object sender, EventArgs e)
         {
@@ -412,7 +411,7 @@ public Form1()
                                     }
                                 }
                             }
-                            catch (Exception ex)
+                            catch 
                             {
                                // txtOutput.Text = string.Format("Broken- Other error: {0}", ex.Message);
                             }
@@ -473,6 +472,8 @@ public Form1()
                         if (p.ProcessName.ToString() == "bedrock_server")
                         {
                             p.Kill();
+                            txtOutput.AppendText("\r\n\r\nThe server has been shutdown.\r\n");
+                            File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "The server has been shutdown.\r\n");
                         }
                     }
                     stopServer = false;
@@ -509,8 +510,15 @@ public Form1()
         private void stopServerButton_Click(object sender, EventArgs e)
         {
             stopServer = true;
-            mcInputStream.WriteLine("stop");
-            stopServerFunction(e);
+            try
+            {
+                mcInputStream.WriteLine("stop");
+                stopServerFunction(e);
+
+            }
+            catch
+            { 
+            }
         }
         private void ComboBox1_SelectedIndexChanged_1(object sender, EventArgs e) 
         {
@@ -651,7 +659,7 @@ public Form1()
                     process.Start();
                     StreamReader reader = process.StandardOutput;
                     string output = reader.ReadToEnd();
-                    string[] stringSeparators = new string[] { "TCP" };
+                    string[] stringSeparators = new string[] { "TCP","UDP" };
                     var words = output.Split(stringSeparators, StringSplitOptions.None);
                     foreach (var word in words)
                     {
@@ -660,12 +668,16 @@ public Form1()
                         {
                                 string PIDE = Strings.Right(word, 13);
                                 string PID = PIDE.Replace(" ", "");
-                                string procName = "     "+LookupProcess(PID);
+                                string procName = LookupProcess(PID);
                                 if( procName.Contains("Minecraft Bedrock Server Admin") ){
-                                    procName = "     MBSA";
+                                    procName = "MBSA";
                                 }
+                                //if( procName.Contains("Minecraft.Windows") ){
+                                   // procName = "     Minecraft";
+                                //}
+                                procName = "     " + procName;
                                // MessageBox.Show(procName,"");
-                            ServerInfoOutput.AppendText("\r   TCP      " + word.Replace(PIDE, procName).Replace("  ", "    ").Replace("\r\n", "").Replace("ESTABLISHED", "ESTAB"));
+                            ServerInfoOutput.AppendText("\r TCP      " + word.Replace(PIDE, procName).Replace("  ", "    ").Replace("\r\n", "").Replace("ESTABLISHED", "ESTAB"));
                         }
                     }
                     process.WaitForExit();
