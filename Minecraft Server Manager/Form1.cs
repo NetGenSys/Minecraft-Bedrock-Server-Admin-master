@@ -702,7 +702,7 @@ public Form1()
                                 {
                                     procName = "MBSA";
                                 }
-                                ServerInfoOutput.AppendText("\rTCP         "+ Localcon +"           "+ Remotecon +"            "+ conState +"           "+ procName +" ");
+                                ServerInfoOutput.AppendText("\r TCP          "+ Localcon +"         "+ Remotecon +"          "+ conState +"        "+ procName +" ");
                         }
                     }
                    //MessageBox.Show(formatted_info, "");
