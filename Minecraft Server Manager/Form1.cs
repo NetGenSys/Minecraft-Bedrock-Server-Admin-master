@@ -693,7 +693,7 @@ public Form1()
                                 string PID = word.Substring(65, word.Length - (word.Length-5));
                                 PID = PID.Replace(" ", "");
                                 string Localcon = word.Substring(4, word.Length - 53);
-                                string Remotecon = word.Substring(27, word.Length - 57);
+                                string Remotecon = word.Substring(27, word.Length - 55);
                                 string conState = word.Substring(50, word.Length - 61).Replace("ESTABLISHED","ESTAB");
                                 string procName = LookupProcess(PID);
                                 procName = PID + "("+procName+")";
