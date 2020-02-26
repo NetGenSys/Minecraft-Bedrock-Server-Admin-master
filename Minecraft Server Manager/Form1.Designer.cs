@@ -331,7 +331,6 @@ namespace MinecraftBedrockServerAdmin {
             // 
             this.gameRulesTxt.BackColor = System.Drawing.Color.LightSkyBlue;
             this.gameRulesTxt.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.gameRulesTxt.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.gameRulesTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gameRulesTxt.ForeColor = System.Drawing.SystemColors.HotTrack;
             this.gameRulesTxt.Location = new System.Drawing.Point(856, 338);
