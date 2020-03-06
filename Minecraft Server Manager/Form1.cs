@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.IO.Compression;
+using System.Text.RegularExpressions;
 
 namespace MinecraftBedrockServerAdmin
 {
@@ -53,16 +54,17 @@ public Form1()
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
             fpTextBoxCallback = new fpTextBoxCallback_t(AddTextToOutputTextBox);
             InitializeComponent();
+            Random rnd = new Random();
 
             System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
             timer.Tick += new EventHandler(timer_Tick);
-            timer.Interval = (2000) * (1);
+            timer.Interval = rnd.Next(2000,2500) * (1);
             timer.Enabled = true;
             timer.Start();
 
             System.Windows.Forms.Timer tcptimer = new System.Windows.Forms.Timer();
             tcptimer.Tick += new EventHandler(Tcptimer_Tick);
-            tcptimer.Interval = (10000) * (1);
+            tcptimer.Interval = rnd.Next(7000,15000) * (1);
             tcptimer.Enabled = true;
             tcptimer.Start();
 
@@ -134,6 +136,7 @@ public Form1()
             }
         }
         private int restartTryLimit = 0;
+
         private void SetUpTimer()
         {
             TimeSpan alertTime = dateTimePicker1.Value.TimeOfDay;
@@ -160,13 +163,34 @@ public Form1()
         }
         public void AddTextToOutputTextBox(string strText)
         {
-            string[] avoidmelist = {"NO LOG FILE!","Version","Session ID","Level Name:","Game mode","Difficulty"};
+            string[] avoidmelist = { "NO LOG FILE!", "Version", "Session ID", "Level Name:", "Game mode", "Difficulty" };
             string blah = strText.Replace("\r", "");
             try
             {
                 if (avoidmelist.Any(strText.Contains))
                 {
                     return;
+                }
+                if (blah.Contains("Player connected:"))
+                {
+                    string[] list = blah.Split(',');
+                    string name_d = list[0].Substring(28).Replace("Player connected:", "");
+                    CheckIfBanned(name_d);
+                    string id = list[1].Substring(7);
+                    string IP = GetLocalIPAddress();
+                    string uri = "http://localhost/bedrockserver/users.php?post&CONNECTED&UserName=" + name_d + "&ServerIP=" + IP + "&xuid=" + id;
+                    var myClient = new WebClient();
+                    Stream response = myClient.OpenRead(uri);
+                    response.Close();
+                }
+                if(blah.Contains("Player disconnected:"))
+                {
+                    string[] list = blah.Split(',');
+                    string name_d = list[0].Substring(28).Replace("Player disconnected:", "");
+                    string uri = "http://localhost/bedrockserver/users.php?post&DISCONNECTED&UserName=" + name_d;
+                    var myClient = new WebClient();
+                    Stream response = myClient.OpenRead(uri);
+                    response.Close();
                 }
                 if (blah.Contains("CrashReporter") && restartTryLimit < 3)
                 {
@@ -175,10 +199,10 @@ public Form1()
                     restartTryLimit++;
                     return;
                 }
-                if (blah.Contains("Server Started."))
+                if (blah.Contains("Server started."))
                 {
                     restartTryLimit = 0;
-                }                 
+                }
                 if (blah.Contains("Unable to summon object"))
                 {
                     this.txtOutput.AppendText("\nSummon Object Failed. If using ~ ~ ~, please change to finite coords on an X Y Z axis or the username you wish to summon to..\r\n");
@@ -199,17 +223,17 @@ public Form1()
                 {
                     try
                     {
-                        string nameofuser = strText.Replace("Could not op (already op or higher): ", "").Replace("\r\n","");
-                        nameofuser = "\""+nameofuser+"\"";
-                        mcInputStream.WriteLine("deop "+nameofuser);
+                        string nameofuser = strText.Replace("Could not op (already op or higher): ", "").Replace("\r\n", "");
+                        nameofuser = "\"" + nameofuser + "\"";
+                        mcInputStream.WriteLine("deop " + nameofuser);
                         return;
                     }
-                    catch{ }
+                    catch { }
                 }
                 if (strText.Contains("De-opped: "))
                 {
                     string nameofuser = strText.Replace("De-opped: ", "").Replace("\r\n", "");
-                    this.txtOutput.AppendText("\r\nRemoved Op from "+nameofuser);
+                    this.txtOutput.AppendText("\r\nRemoved Op from " + nameofuser);
                     return;
                 }
                 if (blah.Contains("Unknown command:"))
@@ -281,7 +305,7 @@ public Form1()
                         {
                             using (StreamWriter writer = new StreamWriter(isoStream))
                             {
-                                writer.WriteLine(server_port +" ,"+ server_ports_list);
+                                writer.WriteLine(server_port + " ," + server_ports_list);
                                 writer.Close();
                             }
                         }
@@ -300,27 +324,28 @@ public Form1()
                 }
                 else if (strText.Contains("players online"))
                 {
-                    players = players + strText + "\r\n";
+                    players = players.Trim() + strText + "\r\n";
                 }
-                else if (!blah.Contains("Unknown command:") && !strText.Contains("players online") && blah.Length > 35 || strText.Contains("Quit") 
-                            || strText.Contains("Set") || strText.Contains("Changing") || strText.Contains("Saving"))
+                else if ( blah.Contains("Server started.") || blah.Contains("Starting Server") || blah.Contains("terminal:") || !blah.Contains("Unknown command:") && !strText.Contains("players online") && blah.Length > 50 || strText.Contains("Quit")
+                            || strText.Contains("Set") || strText.Contains("Changing") || strText.Contains("Saving") || Regex.IsMatch(strText, @"[,\s]")==false && blah.Length < 58)
                 {
                     this.txtOutput.AppendText(strText);
-                    txtOutput.ScrollToCaret(); 
+                    txtOutput.ScrollToCaret();
                     File.AppendAllText(@"ServerLog.csv", strText + " ::: Line : 181\r\n");
                 }
                 else
                 {
-                        string removeCR = strText.Replace("\r\n", "");
-                        string[] names = removeCR.Split(',');
-                        Array.Sort(names);
-                        string result = string.Join("\r\n", names);
-                        players += result;
-                        File.AppendAllText(@"ServerLog.csv", result + " ::: Line : 192\r\n");                
+                    string removeCR = strText.Replace("\r\n", "");
+                    removeCR.Trim(' ');
+                    string[] names = removeCR.Split(',');
+                    Array.Sort(names);
+                    string result = string.Join("\r\n", names);
+                    players += result;
+                    File.AppendAllText(@"ServerLog.csv", result + " ::: Line : 192\r\n");
                 }
             }
             catch (Exception) { }
-        }
+        }                
         private void ConsoleOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             if (!String.IsNullOrEmpty(outLine.Data))
@@ -414,6 +439,7 @@ public Form1()
                                             version = version.Replace(" ","");
                                             wc.DownloadFile(uriBuilder.Uri, Directory.GetCurrentDirectory() + "/BedRockServer-" + version + "." + i + ".zip");
                                         }
+                                        
                                         ZipFile.ExtractToDirectory(Directory.GetCurrentDirectory() + "/BedRockServer-" + version + "." + i + ".zip", Directory.GetCurrentDirectory());
                                     }
                                     else //There are a lot of other status codes you could check for...
@@ -485,6 +511,7 @@ public Form1()
                             p.Kill();
                             txtOutput.AppendText("\r\n\r\nThe server has been shutdown.\r\n");
                             File.AppendAllText(@"ServerLog.csv", "\r\n" + DateTime.Now.ToString() + " " + "The server has been shutdown.\r\n");
+                            txtOutput.ScrollToCaret();
                         }
                     }
                     stopServer = false;
@@ -875,11 +902,39 @@ public Form1()
         {
             if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() == true)
             {
-                const string Address = "http://97.107.69.83/bedrockserver/";
+                const string Address = "http://localhost/bedrockserver/";
                 string ver = new WebClient().DownloadString(Address);
                 if (ver != null && ver != "")
                 {
                     return ver;
+                }
+            }
+            return "";
+        }
+        public string CheckIfBanned(string username)
+        {
+            if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() == true)
+            {   
+                string Address = "http://localhost/bedrockserver/users.php?getbanned&UserName=" + username;
+                string banned = new WebClient().DownloadString(Address);
+                banned = banned.Trim();
+                username = username.Trim();
+                if (banned == "Yes")
+                {
+                    Thread.Sleep(15500);
+                    mcInputStream.WriteLine("say MOVING \"" + username + "\" This user is a griefer and been banned on other servers");
+                    Thread.Sleep(500);
+                    mcInputStream.WriteLine("tp \"" + username + "\" 29999999 6999 29999999");
+                    Thread.Sleep(500);
+                    mcInputStream.WriteLine("tag \"" + username + "\" add IsBanned");
+                    Thread.Sleep(500);
+                    mcInputStream.WriteLine("setblock 29999999 5 29999999 bedrock");
+                    Thread.Sleep(500);
+                    mcInputStream.WriteLine("gamemode s \"" + username + "\"");
+                    Thread.Sleep(500);
+                    mcInputStream.WriteLine("msg \"" + username + "\" You've Been banned, while this may not seem like a ban, we assure you." +
+                                                                    " There's nothing you can do to get back to the rest of the world. you may leave at any time");
+                    mcInputStream.WriteLine("spawnpoint \"" + username + "\" 29999999 7 29999999");
                 }
             }
             return "";
